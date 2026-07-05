@@ -1,0 +1,6 @@
+interface:
+  display_name: "Talking Head Video Pipeline"
+  short_description: "Transcribe, style, preview, and export talking-head videos."
+  default_prompt: "Use $talking-head-video-pipeline to transcribe my talking-head video, ask for my visual style, build a preview, and export the final video."
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,13 @@
+.DS_Store
+node_modules/
+.env
+*.log
+renders/
+work-*/
+assets/*.mp4
+assets/*.mov
+assets/*.mkv
+assets/*.wav
+assets/*.mp3
+edit/transcripts/
+final/
