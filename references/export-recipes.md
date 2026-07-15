@@ -24,16 +24,16 @@ ffmpeg -hide_banner -y \
   "<work_dir>/assets/main-preview.mp4"
 ```
 
-## Final From Preview Render And Original Audio
+## Final From Full-Resolution Render And Original Audio
 
-Use only when the preview render is visually complete and the user accepts an upscaled final.
+Use only when the rendered video is already at the requested final resolution. Do not upscale a low-resolution preview and call it a true high-resolution final.
 
 ```bash
 ffmpeg -hide_banner -y \
   -i "<preview_render.mp4>" \
   -i "<main_video>" \
   -map 0:v:0 -map 1:a:0 \
-  -vf "scale=3840:2160:flags=lanczos,fps=30,format=yuv420p" \
+  -vf "fps=30,format=yuv420p" \
   -c:v h264_videotoolbox -b:v 42000k -maxrate 52000k -bufsize 84000k \
   -c:a aac -b:a 192k -shortest -movflags +faststart \
   "<output_4k.mp4>"
@@ -54,6 +54,8 @@ Conceptual filter:
 [main_video][overlay_rgba] overlay=0:0:format=auto
 ```
 
+When the source is 4K HEVC/Main10, this is the preferred path: render only transparent graphics in the motion renderer, composite over the original source with ffmpeg, and map the original main audio.
+
 ## Render Log Rule
 
 Do not do this for long renders:
@@ -68,3 +70,5 @@ That can terminate the render early. Instead:
 render-command > render.log 2>&1
 tail -n 40 render.log
 ```
+
+If a render is progressing, keep waiting. Do not switch methods merely because the frame count advances slowly.

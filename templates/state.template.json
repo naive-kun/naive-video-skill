@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0",
+  "skill_version": "2.0.0",
+  "project_name": "<project_name>",
+  "stage": "initialized",
+  "main_video": "<main_video>",
+  "master_audio": "main_video",
+  "source_probe": {},
+  "preview_required": true,
+  "approval": {
+    "status": "pending",
+    "approved_at": null,
+    "preview_url": null
+  },
+  "style_profile": {
+    "preset": "clean",
+    "accent_color": "#2F7DF4",
+    "aspect_ratio": "preserve-source",
+    "motion_density": "balanced",
+    "safe_zones": ["face", "existing-captions", "screenshots", "product-ui"]
+  },
+  "profile": {
+    "name": null,
+    "path": null,
+    "loaded": false,
+    "rules_loaded": 0
+  },
+  "outputs": {},
+  "last_error": null,
+  "updated_at": "<ISO-8601>"
+}

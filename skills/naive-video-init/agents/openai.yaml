@@ -1,0 +1,6 @@
+interface:
+  display_name: "Naive Video Init"
+  short_description: "Initialize or adopt a resumable video project."
+  default_prompt: "Use $naive-video-init to initialize this talking-head video project without modifying my source media."
+policy:
+  allow_implicit_invocation: true

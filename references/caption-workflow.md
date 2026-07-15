@@ -39,3 +39,5 @@ index,start,end,duration,text
 - Report shortest and longest duration.
 - Search for requested replaced words.
 - Search for known ASR mistakes in proper nouns and tool names.
+- Run `python3 tools/caption_check.py <srt> [<csv>]` before marking captions ready.
+- If the CSV and SRT disagree, fix both from the same timing source rather than patching them independently.

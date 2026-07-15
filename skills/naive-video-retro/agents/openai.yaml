@@ -1,0 +1,6 @@
+interface:
+  display_name: "Naive Video Retro"
+  short_description: "Turn final-delivery feedback into private, testable improvements."
+  default_prompt: "Use $naive-video-retro to review this delivered video and promote only confirmed, privacy-safe lessons."
+policy:
+  allow_implicit_invocation: true

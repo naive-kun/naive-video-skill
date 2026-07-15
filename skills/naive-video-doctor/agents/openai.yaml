@@ -1,0 +1,6 @@
+interface:
+  display_name: "Naive Video Doctor"
+  short_description: "Diagnose setup, state, caption, preview, and render failures."
+  default_prompt: "Use $naive-video-doctor to inspect this project without changing or deleting anything."
+policy:
+  allow_implicit_invocation: true

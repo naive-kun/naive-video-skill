@@ -1,58 +1,88 @@
 # Example Prompts
 
-## Full Pipeline
+## First Project
 
 ```text
-Use $talking-head-video-pipeline to process this talking-head video:
-<path-to-video>
+用 $talking-head-video-pipeline 初始化视频项目。
+主视频：<path>
+我是第一次用，你帮我按默认流程走。
+```
 
-Generate caption timing first, ask me for visual style, build a preview, then wait for my approval before final export.
+## Full Pipeline With Assets
+
+```text
+用 $talking-head-video-pipeline 制作成片。
+主视频：<path>
+字幕：<srt-path>
+
+12.5 秒插入截图 <image-path>，停留 2 秒。
+35 秒全屏播放 <demo-path>，素材静音，人物放左下角画中画。
+
+先给我官方预览，确认后再导出。
 ```
 
 ## Captions Only
 
 ```text
-Use $talking-head-video-pipeline to generate only caption files for this video:
-<path-to-video>
-
-Do not modify the source video. Output SRT, CSV, and transcript JSON.
+只抽字幕轴，不动原视频。
+视频：<path>
+输出 SRT、CSV 和 transcript JSON。
 ```
 
-## Use Existing Script As Correction Guide
+## Existing Captions
 
 ```text
-Use $talking-head-video-pipeline to transcribe this video:
-<path-to-video>
-
-Use this script as a correction guide, but prefer what I actually said in the video if they differ:
-<paste script>
+我已经有字幕轴，不需要重新转写。
+视频：<path>
+SRT：<path>
+CSV：<path>
+请进入风格设计和预览阶段。
 ```
 
-## Existing Captions To Styled Preview
+## Fast Style Setup
 
 ```text
-Use $talking-head-video-pipeline with:
-- video: <path-to-video>
-- srt: <path-to-script-aligned.srt>
-- csv: <path-to-caption-table.csv>
-
-Ask me for card and subtitle style, then build a preview.
+风格你帮我定，干净专业、蓝色强调、动效克制。
+截图正文和人脸绝对不能挡。
 ```
 
-## Direct Final Export
+## Custom Style
 
 ```text
-Use $talking-head-video-pipeline to build the final video directly.
-Use my existing captions and this style: dark tech panels, cyan accent, clean lower-third subtitles.
-Do not extract visual QA frames; only confirm file parameters.
+卡片用深色高对比，强调色 #FF4D4F。
+字幕用粗白字，关键词用强调色。
+动效 energetic，但展示截图时收敛。
 ```
 
-## Style Customization
+## Resume
 
 ```text
-Use $talking-head-video-pipeline.
-Brand color: #55D83F.
-Cards: frosted white tool cards.
-Subtitles: bold brush subtitles with green keyword highlights.
-Never cover my face or screenshots.
+用 $naive-video-status 看一下这个视频项目做到哪一步，继续未完成的部分。
+```
+
+## Diagnose
+
+```text
+用 $naive-video-doctor 只做体检，不要删文件，也不要重跑渲染。
+```
+
+## Explicit Learning
+
+```text
+这个圆形人物画中画是正确的。以后我的演示视频都用圆形，不要用矩形。
+请用 $naive-video-learn 记成长期风格规则。
+```
+
+## Direct Export
+
+```text
+我明确跳过预览，直接导出最终成片。
+保留原始主音频，只做文件参数检查，不抽帧。
+```
+
+## Delivery Retrospective
+
+```text
+用 $naive-video-retro 复盘这条成片。
+先区分具体故障、环境问题和我的长期风格偏好；只有我确认后，才把规则带到下一条视频。
 ```

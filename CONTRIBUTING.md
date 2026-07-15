@@ -1,45 +1,54 @@
 # Contributing
 
-Thanks for improving this skill.
+Contributions should make a stranger's first successful run shorter, safer, or more reliable.
 
-## Keep It Generic
+## Before Editing
 
-Do not add:
+Classify the change:
 
-- Personal absolute paths
-- Private account names
-- Private customer names
-- Source video filenames from real projects
-- API keys or tokens
-- Local `.env` content
-- Private screenshots or rendered frames
+- routing or invariant -> root `SKILL.md`
+- one stage -> matching child skill
+- detailed protocol -> `references/`
+- deterministic repeated action -> `tools/`
+- user-project scaffold -> `templates/`
+- state change -> `migrations/`
 
-Use placeholders like:
+Do not duplicate the same rule across many child skills. Put shared correctness rules in a reference and link to it.
 
-```text
-<main_video>
-<output_dir>
-<work_dir>
-<accent_color>
-```
+## Privacy
 
-## Before Opening A PR
+Never add:
 
-Run:
+- personal absolute paths
+- account or customer names
+- real project filenames
+- screenshots, transcripts, or rendered frames from private work
+- API keys, tokens, `.env` contents, or login state
+- creator-specific brand rules as public defaults
+
+Use placeholders such as `<main_video>`, `<project_dir>`, and `<accent_color>`.
+
+## Self-Iteration Contributions
+
+A user lesson is eligible for the public skill only when it is sanitized, testable, general, and reviewed. Taste preferences remain project-local. Hard correctness failures may be promoted immediately after a reproducible test is added.
+
+Use `VIDEO_RETRO.md` to document evidence. Promotion requires either two independent project observations or one hard correctness failure with a regression test.
+
+## Required Checks
 
 ```bash
 bash scripts/doctor.sh --privacy-scan .
+python3 tools/validate_skill.py .
+bash tests/smoke.sh
 ```
 
-Check:
+The test path must work without PyYAML or other unlisted Python packages.
 
-- `SKILL.md` frontmatter has only `name` and `description`.
-- `agents/openai.yaml` has a short, accurate `default_prompt`.
-- README examples do not contain private paths.
-- New references are useful across many users, not just one creator.
+## Pull Requests
 
-## Style
+Explain:
 
-- Keep `SKILL.md` concise.
-- Put longer explanations in `references/`.
-- Prefer reusable workflows over one creator's visual style.
+1. The beginner or reliability failure being fixed.
+2. Which stage owns the fix.
+3. How the change was tested.
+4. Whether state schema or migration behavior changed.

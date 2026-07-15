@@ -1,186 +1,152 @@
 ---
 name: talking-head-video-pipeline
-description: End-to-end talking-head video production workflow. Use when the user wants to transcribe a raw or rough-cut talking-head video, generate editable SRT/CSV caption timing, optionally revise caption text, choose or customize a visual style, build a HyperFrames/GSAP preview, and export a final video while preserving the source audio/video timing.
+description: End-to-end, stateful talking-head video production for beginners and experienced editors. Use when a user wants to initialize a video project, transcribe or revise captions, choose a visual style, add screenshots or demo videos, build a HyperFrames/GSAP preview, export a synchronized final video, resume interrupted work, diagnose a project, or learn reusable style rules from explicit feedback. Routes to focused sub-skills and preserves source timing, audio, evidence readability, privacy, and preview approval.
 ---
 
 # Talking Head Video Pipeline
 
-This skill turns a raw or rough-cut talking-head video into a publishable video:
+Turn a raw or rough-cut talking-head video into editable captions, a motion-packaged preview, and a verified final export. Treat this file as the router and shared contract. Read only the routed sub-skill and references needed for the current stage.
 
-1. Transcribe the source video.
-2. Generate editable caption timing files.
-3. Ask for or infer the visual style.
-4. Build an HTML/GSAP motion-graphics preview.
-5. Export the final video without breaking audio sync.
+## Beginner Promise
 
-Keep the user's original media untouched unless they explicitly ask for cuts.
+Assume the user has never edited with Codex.
 
-## Operating Modes
+- Ask one short question at a time only when an answer cannot be inferred safely.
+- Prefer a working default over presenting many technical choices.
+- Explain the next visible result, not the renderer internals.
+- End every stage with exact output paths and the next phrase the user can say.
+- Resume existing work instead of restarting it.
 
-Choose the narrowest mode that satisfies the user:
+## Non-Negotiable Rules
 
-- `captions-only`: transcribe and create `script-aligned.srt`, `caption-table.csv`, and raw transcript JSON.
-- `style-preview`: use existing caption files to build a motion-graphics preview.
-- `full-pipeline`: captions, optional text revision, style onboarding, preview, and final export.
-- `revise`: update caption text or motion style from user feedback without redoing unrelated work.
+1. **Source is immutable.** Never overwrite or destructively edit the supplied source media.
+2. **Main audio is the clock.** Do not retime, reorder, resample, or replace it unless explicitly requested.
+3. **Evidence stays readable.** Never cover screenshot body text, product UI, faces, or user-marked safe zones. Do not blur evidence assets.
+4. **Preview before final.** Build an official preview and wait for approval unless the user explicitly requests direct export.
+5. **Original-quality final.** Do not present an upscaled low-resolution preview as a true high-resolution final. Use the original source as the final base whenever possible.
+6. **Do not interrupt progress.** If a render is advancing, wait and report progress. Change pipelines only after a real error or explicit approval.
+7. **No private data in the skill.** Project-local paths, media names, brand rules, screenshots, customer details, and API keys stay in the user's project.
+8. **Learn only from explicit feedback.** Do not infer permanent style rules from silence or one unconfirmed draft.
 
-Default to `full-pipeline` only when the user asks for end-to-end production.
+Read [references/quality-gates.md](references/quality-gates.md) before preview or export work.
 
-## Required First Step
+## Route Table
 
-Before editing, collect or infer:
+| User intent or phrase | Route | Typical output |
+|---|---|---|
+| `初始化视频项目`, `第一次用`, `start a video project` | `skills/naive-video-init/SKILL.md` | State, edit plan, design profile |
+| `抽字幕轴`, `只做字幕`, `transcribe`, `改字幕` | `skills/naive-video-captions/SKILL.md` | SRT, CSV, transcript JSON |
+| `帮我设计`, `换颜色风格`, `规划弹窗`, `design` | `skills/naive-video-design/SKILL.md` | DESIGN and complete edit plan |
+| `做预览`, `加动效`, `build preview` | `skills/naive-video-preview/SKILL.md` | Official preview URL |
+| `出成片`, `导出 4K`, `export final` | `skills/naive-video-export/SKILL.md` | Verified final video |
+| `改这个`, `恢复上一版`, `revise` | `skills/naive-video-revise/SKILL.md` | Scoped revision and new preview/final |
+| `进度`, `到哪了`, `status` | `skills/naive-video-status/SKILL.md` | Current stage and next action |
+| `体检`, `为什么失败`, `doctor` | `skills/naive-video-doctor/SKILL.md` | Read-only diagnosis |
+| `以后都这样`, `记住这个风格`, `learn this` | `skills/naive-video-learn/SKILL.md` | Confirmed project-local lessons |
+| `复盘成片`, `下次怎么改进`, `retro` | `skills/naive-video-retro/SKILL.md` | Structured delivery retrospective |
+| `升级状态`, `迁移`, `migrate` | `skills/naive-video-migrate/SKILL.md` | State schema upgrade |
 
-- `main_video`: source talking-head video.
-- `output_dir`: where generated files should go. Default to `<main_video_dir>/edit/` for captions and `<main_video_dir>/final/` for rendered videos.
-- `transcript_or_script`: optional correction script supplied by the user.
-- `style`: existing brand guide, reference screenshot, or user preferences.
-- `extra_media`: optional screenshots, screen recordings, logos, or demo videos with timestamps.
-- `preview_required`: default `true`; skip preview only when the user explicitly says to export directly.
-- `transcription_method`: local ASR, cloud API, existing transcript JSON, or user-provided captions.
+## Mode Detection
 
-Use `ffprobe` to inspect source duration, size, frame rate, codec, pixel format, and audio stream.
+Before routing:
 
-If the environment is unknown, run `scripts/doctor.sh` from this skill folder or do equivalent checks manually.
+1. Identify the user's video project directory, not this skill repository.
+2. Look for `.naive-video-state.json`.
+3. If absent and the task is more than a one-off caption text edit, route to `naive-video-init`.
+4. If present, read it plus `EDIT_PLAN.md`, `DESIGN.md`, and `VIDEO_LESSONS.md` only when relevant.
+5. Run `python3 tools/video_doctor.py --project <project_dir>` when state and files disagree.
 
-## Caption Axis Workflow
-
-Create these files under `<main_video_dir>/edit/`:
-
-```text
-script-aligned.srt
-caption-table.csv
-transcripts/<video_name>.json
-```
-
-Workflow:
-
-1. Run word-level transcription and cache the raw JSON.
-2. If the user supplies a script, use it as a correction guide, but prefer the spoken video when the script differs.
-3. Group captions by semantic sentence, not by mechanical line length.
-4. Write both SRT and CSV.
-5. Lightly fix obvious terminology errors.
-
-Caption rules:
-
-- Do not modify the source video.
-- Avoid zero-second captions.
-- Avoid tiny flash captions below roughly 0.5s unless unavoidable.
-- Avoid a long first line with a tiny second line.
-- Keep terminology consistent: product names, tools, people, brands, project names.
-- When the user asks for text replacement, update SRT and CSV together without changing timing.
-- If no transcription tool/API is available, explain the missing dependency and offer to continue from a user-provided transcript, SRT, CSV, or JSON.
-
-Default delivery message:
+Use these stages:
 
 ```text
-Caption files are ready; source video was not modified.
-
-- script-aligned.srt
-- caption-table.csv
-- transcript json
-
-Checked: N captions, shortest Xs, longest Ys, obvious ASR terms fixed.
+initialized -> captions_ready -> design_ready -> preview_ready
+-> approved -> rendering -> final_ready
 ```
 
-## Style Onboarding
+Never mark a later stage until its quality gate passes.
 
-If no style guide or reference screenshot is provided, ask concise questions before building the preview:
+## Default Pipeline
 
-1. Brand/accent color?
-2. Caption style: brush subtitle, clean lower-third, or platform-style subtitles?
-3. Card style: frosted white tool cards, dark tech panels, sticker cards, or minimal captions only?
-4. Mood: professional, energetic, tutorial, documentary, humorous, or cinematic?
-5. Output format: 16:9, 9:16, 1:1, or preserve source aspect ratio?
+When the user asks for the complete workflow:
 
-If the user does not answer and wants speed, choose a conservative default:
+1. Inspect source media with `ffprobe`.
+2. Initialize project state and safe output directories.
+3. Produce or validate caption files.
+4. Collect or infer a style profile and safe zones.
+5. Write an edit plan with every requested insert and time range.
+6. Build a HyperFrames + GSAP preview using a browser-friendly proxy if needed.
+7. Run preview quality gates and provide the official preview URL.
+8. Wait for approval unless explicitly told to skip.
+9. Render overlays or final composition using the original source and original audio.
+10. Verify file existence, duration, resolution, frame rate, and audio.
+11. Record only confirmed feedback as project-local lessons.
+12. After delivery, run a factual retrospective and promote only explicit, privacy-safe rules.
 
-- White frosted cards.
-- One accent color.
-- Bold readable captions.
-- Minimal motion.
-- Do not cover faces or evidence screenshots.
+## Project Files
 
-Store the chosen style in a project-local `DESIGN.md` so future turns can reuse it.
-
-See `references/style-onboarding.md` for a reusable question set and style schema.
-See `references/caption-workflow.md` for caption grouping rules.
-
-## Motion Graphics Preview
-
-Use HTML video composition with GSAP when available. HyperFrames is recommended but not mandatory if the user's environment has another renderer.
-
-Preview project structure:
+`naive-video-init` creates this minimal project memory without touching source media:
 
 ```text
-<work_dir>/
-  hyperframes-preview/
-    index.html
-    DESIGN.md
-    hyperframes.json
-    assets/
+<project_dir>/
+├── .naive-video-state.json
+├── EDIT_PLAN.md
+├── DESIGN.md
+├── VIDEO_LESSONS.md
+├── VIDEO_RETRO.md
+├── edit/
+│   ├── script-aligned.srt
+│   ├── caption-table.csv
+│   └── transcripts/
+├── preview/
+├── final/
+└── qa/
 ```
 
-Preview rules:
+State is operational metadata, not a media database. Keep it small and never store transcript bodies, private screenshots, or secrets in it. See [references/state-management.md](references/state-management.md).
 
-- Main video/audio is the master clock.
-- Do not retime or reorder the main video unless the user asks for an edit.
-- If screenshots or demos are already in the main video, treat it as a locked base and only add captions/cards/transparent overlays.
-- Use GSAP for motion: `scale`, `y`, `filter: blur(...)`, `autoAlpha`, `back.out`, `elastic.out`, `stagger`, subtle shake, pulse.
-- Avoid static PPT-style slides.
-- Evidence screenshots stay readable. Do not cover body text with big cards or captions.
-- If using picture-in-picture, avoid faces, subtitles, and important UI.
-- If the source codec stutters in browser preview, generate a temporary H.264 preview proxy and keep the original video for final export.
+## Style Defaults
 
-Default preview response:
+If the user wants speed and gives no reference:
 
-```text
-Preview is ready:
-http://localhost:<port>/#project/<project-name>
+- Preserve the source aspect ratio.
+- Use a clean, readable card system with one configurable accent color.
+- Use bold captions with restrained keyword emphasis.
+- Use GSAP transforms and opacity for motion.
+- Place cards in verified empty space.
+- Reduce motion density while screenshots or demos are visible.
 
-Please confirm the motion/style before final export.
+Ask for an accent color only if brand consistency matters. Otherwise use the neutral preset and make it easy to change later. See [references/style-onboarding.md](references/style-onboarding.md).
+
+## Self-Iteration Contract
+
+Self-iteration means improving the current user's workflow without leaking it into public defaults.
+
+Classify feedback into one scope:
+
+- `project`: applies only to this video.
+- `profile`: applies to this user's future videos; write it only after explicit confirmation.
+- `product`: a privacy-safe, general reliability improvement; propose it to the skill maintainer separately.
+
+Record profile feedback in `VIDEO_LESSONS.md` with the user's words, the confirmed rule, and the affected stage. Never copy media paths or private evidence into this repository. See [references/self-iteration.md](references/self-iteration.md).
+
+Use `naive-video-retro` after delivery to separate failures, environment issues, and taste feedback before promoting any rule. New projects import active private-profile rules into `VIDEO_LESSONS.md` so the editor can actually apply them.
+
+## Recovery Rules
+
+- If preview stops responding, check the process and port before rebuilding.
+- If a browser cannot decode HEVC/Main10 smoothly, make an H.264 proxy for preview only.
+- If a render session is running, poll it; do not terminate it merely because it is slow.
+- If partial frames exist, compare expected and actual frame counts before resuming or restarting.
+- Delete damaged partial outputs only after confirming they are not the sole valid result.
+- Keep logs outside command pipes that can terminate long jobs.
+
+## Privacy Before Publishing
+
+Run:
+
+```bash
+bash scripts/doctor.sh --privacy-scan .
+python3 tools/validate_skill.py .
 ```
 
-## Final Export
-
-Export only after preview approval, unless the user explicitly says to skip preview.
-
-Final rules:
-
-- Preserve source audio as the master audio.
-- Preserve source timing.
-- Use the original source video as the base when possible.
-- Do not use a low-resolution preview proxy as the final base.
-- If the source is high-resolution HEVC/Main10 or otherwise fragile, render a transparent overlay and composite it over the original source with ffmpeg.
-
-Minimum verification:
-
-- Confirm file exists.
-- Confirm duration.
-- Confirm resolution.
-- Confirm audio stream exists.
-
-If the user says not to inspect frames, do not extract visual QA frames; only do file parameter checks.
-
-See `references/export-recipes.md` for ffmpeg patterns and stable-overlay guidance.
-
-## Privacy and Open Source Rules
-
-Never bake personal paths, account names, private screenshots, API keys, or user-specific brand rules into this skill.
-
-Use placeholders:
-
-- `<main_video>`
-- `<output_dir>`
-- `<work_dir>`
-- `<project_name>`
-- `<accent_color>`
-
-Do not mention a specific creator account, local username, private folder, or previous customer/video unless the user provides it in the current task.
-
-## Troubleshooting
-
-- If preview fails, check whether the server process is still listening on the port.
-- If browser preview stutters on HEVC, create an H.264 preview proxy; keep the original for final export.
-- Do not pipe long-running render commands into `head`; redirect logs to a file, then inspect the log separately.
-- If rendering is slow but progressing, wait. Do not switch pipelines without a real error or user approval.
-- Before publishing changes to the skill, run a privacy scan for local usernames, absolute personal paths, API keys, private project names, and real customer media names.
+Block publication if either command reports personal absolute paths, secrets, private media names, invalid frontmatter, missing routed sub-skills, or broken templates.

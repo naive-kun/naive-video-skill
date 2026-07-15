@@ -1,0 +1,6 @@
+interface:
+  display_name: "Naive Video Export"
+  short_description: "Render and verify the approved final video."
+  default_prompt: "Use $naive-video-export to render the approved final video with original timing and audio."
+policy:
+  allow_implicit_invocation: true

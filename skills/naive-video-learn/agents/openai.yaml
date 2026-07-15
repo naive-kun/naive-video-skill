@@ -1,0 +1,6 @@
+interface:
+  display_name: "Naive Video Learn"
+  short_description: "Record explicit editing preferences as private project rules."
+  default_prompt: "Use $naive-video-learn to remember this confirmed editing rule for my future projects without publishing private details."
+policy:
+  allow_implicit_invocation: true

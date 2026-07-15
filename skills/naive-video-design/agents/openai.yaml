@@ -1,0 +1,6 @@
+interface:
+  display_name: "Naive Video Design"
+  short_description: "Plan style, safe zones, cards, and media timing before rendering."
+  default_prompt: "Use $naive-video-design to turn my captions and assets into a safe, render-ready visual plan."
+policy:
+  allow_implicit_invocation: true

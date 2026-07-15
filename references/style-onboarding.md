@@ -1,67 +1,83 @@
 # Style Onboarding
 
-Use this when the user has not provided a visual style.
+Collect the smallest style profile that can produce a safe preview.
 
-## Quick Questions
+## Guided Mode
 
-Ask only what is needed. If the user is in a hurry, ask the first two questions and infer the rest.
+Ask one question at a time:
 
-1. What is your accent color? Provide a hex value if you have one.
-2. What style should cards use?
-   - Frosted white tool cards
-   - Dark tech panels
-   - Sticker/pop cards
-   - Minimal captions only
-3. What subtitle style should the video use?
-   - Bold brush subtitle
-   - Clean lower-third
-   - Platform-style captions
-   - Existing brand style
-4. What format?
-   - 16:9
-   - 9:16
-   - 1:1
-   - Preserve source
-5. What should never be covered?
-   - Face
-   - Screenshots
-   - Product UI
-   - Existing subtitles
-   - Other
+1. What format: preserve source, 16:9, 9:16, or 1:1?
+2. Which preset: clean, dark, sticker, or minimal?
+3. What accent color? Accept a color name or hex. Offer to keep the preset default.
+4. What must never be covered?
+5. Motion density: restrained, balanced, or energetic?
 
-## DESIGN.md Schema
+Skip questions whose answers can be inferred from a supplied reference.
 
-Write project-local style choices like this:
+## Quick Mode
+
+When the user says to decide for them:
+
+- Preserve source aspect ratio.
+- Use `clean`.
+- Use an accessible neutral-blue accent.
+- Use balanced motion.
+- Protect face, existing captions, screenshots, and product UI.
+
+## Presets
+
+### clean
+
+Light translucent cards, dark text, one accent color, restrained shadows, clear hierarchy. Good for tutorials and professional recaps.
+
+### dark
+
+Dark high-contrast cards, light text, one bright accent. Good for technical or cinematic content. Never place dark panels over dark evidence screenshots.
+
+### sticker
+
+Compact sticker-like labels with spring motion and limited rotation. Good for energetic short-form content. Keep screenshot scenes restrained.
+
+### minimal
+
+Captions, keyword emphasis, and only essential callouts. Good for dense evidence and long demos.
+
+## DESIGN.md Contract
+
+Write:
 
 ```md
 # DESIGN
 
-## Visual Style
-
-Short paragraph describing the intended look.
-
-## Colors
-
-- Accent: `<accent_color>`
-- Text:
-- Card background:
-- Subtitle background:
+## Profile
+- Preset:
+- Accent:
+- Aspect ratio:
+- Motion density:
 
 ## Captions
-
-Caption style, keyword color, placement, and line rules.
+- Style:
+- Position:
+- Keyword behavior:
 
 ## Cards
+- Surface:
+- Typography:
+- Maximum simultaneous cards:
 
-Card structure, typography, animation style, and safe zones.
+## Safe Zones
+- Face:
+- Existing captions:
+- Screenshots/UI:
 
 ## Motion
-
-GSAP primitives and pacing.
+- Enter:
+- Emphasis:
+- Exit:
 
 ## Do Not
-
-- Do not cover faces.
-- Do not cover evidence screenshots.
-- Do not change source audio timing.
+- Do not change source timing or master audio.
+- Do not cover evidence.
 ```
+
+Use CSS variables such as `--accent`, `--surface`, `--text`, and `--muted` so a user can change color without rewriting motion logic.

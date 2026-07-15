@@ -1,57 +1,63 @@
 #!/usr/bin/env bash
-set -u
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
+ROOT_DIR="$(cd -- "$SCRIPT_DIR/.." >/dev/null 2>&1 && pwd)"
 
 if [[ "${1:-}" == "--privacy-scan" ]]; then
   target="${2:-.}"
-  echo "Privacy scan target: $target"
-  if ! command -v grep >/dev/null 2>&1; then
-    echo "grep not found"
-    exit 1
-  fi
-  patterns='(/Users/|/home/[^ <"]+|API[_-]?KEY|SECRET|TOKEN|PASSWORD|BEGIN [A-Z ]*PRIVATE KEY|\.env|Desktop/|Downloads/)'
-  if grep -RInE "$patterns" "$target" \
-    --exclude-dir=.git \
-    --exclude-dir=node_modules \
-    --exclude='.gitignore' \
-    --exclude='CONTRIBUTING.md' \
-    --exclude='doctor.sh' \
-    --exclude='README.md' \
-    --exclude='*.log' 2>/dev/null; then
-    echo "Potential private strings found. Review before publishing."
-    exit 2
-  fi
-  echo "No obvious private strings found."
-  exit 0
+  exec python3 "$ROOT_DIR/tools/validate_skill.py" --privacy-only "$target"
 fi
 
-echo "Talking Head Video Pipeline environment check"
+if [[ "${1:-}" == "--project" ]]; then
+  project="${2:-}"
+  if [[ -z "$project" ]]; then
+    echo "Usage: bash scripts/doctor.sh --project <project_dir>"
+    exit 2
+  fi
+  exec python3 "$ROOT_DIR/tools/video_doctor.py" --project "$project"
+fi
+
+echo "Naive Video Skill environment check"
 echo
 
-check_cmd() {
-  name="$1"
-  cmd="$2"
-  if command -v "$cmd" >/dev/null 2>&1; then
-    printf "[ok]   %s: %s\n" "$name" "$(command -v "$cmd")"
+missing_required=0
+check_required() {
+  local command="$1"
+  if command -v "$command" >/dev/null 2>&1; then
+    printf '[ok]   %-10s %s\n' "$command" "$(command -v "$command")"
   else
-    printf "[miss] %s: command not found (%s)\n" "$name" "$cmd"
+    printf '[miss] %-10s required\n' "$command"
+    missing_required=1
   fi
 }
 
-check_cmd "ffmpeg" "ffmpeg"
-check_cmd "ffprobe" "ffprobe"
-check_cmd "node" "node"
-check_cmd "npm" "npm"
-check_cmd "npx" "npx"
+check_optional() {
+  local command="$1"
+  if command -v "$command" >/dev/null 2>&1; then
+    printf '[ok]   %-10s %s\n' "$command" "$(command -v "$command")"
+  else
+    printf '[note] %-10s optional for preview/rendering\n' "$command"
+  fi
+}
+
+check_required python3
+check_required ffmpeg
+check_required ffprobe
+check_optional node
+check_optional npm
+check_optional npx
+check_optional whisper
 
 echo
-echo "Optional renderer check:"
-if command -v npx >/dev/null 2>&1; then
-  echo "  HyperFrames can usually be run with: npx --yes hyperframes --help"
-else
-  echo "  npx missing; install Node.js/npm or use another renderer."
+if [[ "$missing_required" -eq 1 ]]; then
+  echo "Install missing tools, then run this check again."
+  case "$(uname -s)" in
+    Darwin) echo "macOS hint: brew install ffmpeg python node" ;;
+    Linux) echo "Linux hint: use your package manager to install ffmpeg, python3, and nodejs/npm" ;;
+  esac
+  exit 1
 fi
 
-echo
-echo "Transcription check:"
-echo "  This skill does not bundle ASR. Configure your preferred transcription tool/API,"
-echo "  or provide an existing transcript, SRT, CSV, or transcript JSON."
+echo "Required environment is ready."
+echo "Next: initialize a project with the main skill or run tools/bootstrap.py."

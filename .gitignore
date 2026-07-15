@@ -1,6 +1,10 @@
 .DS_Store
 node_modules/
 .env
+.env.*
+!.env.example
+__pycache__/
+*.pyc
 *.log
 renders/
 work-*/
@@ -11,3 +15,6 @@ assets/*.wav
 assets/*.mp3
 edit/transcripts/
 final/
+.naive-video-state.json
+qa/
+preview/

@@ -1,0 +1,6 @@
+interface:
+  display_name: "Naive Video Migrate"
+  short_description: "Upgrade project state without moving or overwriting media."
+  default_prompt: "Use $naive-video-migrate to upgrade this older video project safely."
+policy:
+  allow_implicit_invocation: true
