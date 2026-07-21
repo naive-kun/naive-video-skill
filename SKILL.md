@@ -37,6 +37,8 @@ Read [references/quality-gates.md](references/quality-gates.md) before preview o
 | `初始化视频项目`, `第一次用`, `start a video project` | `skills/naive-video-init/SKILL.md` | State, edit plan, design profile |
 | `抽字幕轴`, `只做字幕`, `transcribe`, `改字幕` | `skills/naive-video-captions/SKILL.md` | SRT, CSV, transcript JSON |
 | `帮我设计`, `换颜色风格`, `规划弹窗`, `design` | `skills/naive-video-design/SKILL.md` | DESIGN and complete edit plan |
+| `参考这张截图设计`, `按这张图的视觉语言`, `style reference` | `skills/naive-video-design/SKILL.md` reference branch | Project-local STYLE_REFERENCE |
+| `按语义匹配动效`, `GSAP 动效丰富一点`, `semantic motion` | `skills/naive-video-design/SKILL.md`, then preview | Validated MOTION_PLAN and preview |
 | `做预览`, `加动效`, `build preview` | `skills/naive-video-preview/SKILL.md` | Official preview URL |
 | `出成片`, `导出 4K`, `export final` | `skills/naive-video-export/SKILL.md` | Verified final video |
 | `改这个`, `恢复上一版`, `revise` | `skills/naive-video-revise/SKILL.md` | Scoped revision and new preview/final |
@@ -72,8 +74,8 @@ When the user asks for the complete workflow:
 1. Inspect source media with `ffprobe`.
 2. Initialize project state and safe output directories.
 3. Produce or validate caption files.
-4. Collect or infer a style profile and safe zones.
-5. Write an edit plan with every requested insert and time range.
+4. Collect or infer a style profile and safe zones. Offer optional screenshot-reference matching to beginners.
+5. Write an edit plan and semantic motion plan with every requested insert and time range.
 6. Build a HyperFrames + GSAP preview using a browser-friendly proxy if needed.
 7. Run preview quality gates and provide the official preview URL.
 8. Wait for approval unless explicitly told to skip.
@@ -91,6 +93,8 @@ When the user asks for the complete workflow:
 ├── .naive-video-state.json
 ├── EDIT_PLAN.md
 ├── DESIGN.md
+├── STYLE_REFERENCE.md       # created only when a reference image is used
+├── MOTION_PLAN.json         # created when semantic motion is planned
 ├── VIDEO_LESSONS.md
 ├── VIDEO_RETRO.md
 ├── edit/
@@ -115,7 +119,9 @@ If the user wants speed and gives no reference:
 - Place cards in verified empty space.
 - Reduce motion density while screenshots or demos are visible.
 
-Ask for an accent color only if brand consistency matters. Otherwise use the neutral preset and make it easy to change later. See [references/style-onboarding.md](references/style-onboarding.md).
+Ask for an accent color only if brand consistency matters. Otherwise use the neutral preset and make it easy to change later. Beginners may optionally provide a screenshot and choose `low`, `medium`, or `high` reference strength; explain that the skill copies visual language, never the source brand or content. Motion density is `restrained`, `balanced`, or `energetic`. See [references/style-onboarding.md](references/style-onboarding.md).
+
+Detailed GSAP recipes and semantic mappings live in [references/motion-recipes.md](references/motion-recipes.md). Screenshot extraction and anti-copy rules live in [references/style-reference-workflow.md](references/style-reference-workflow.md). Load them only for the matching design branch.
 
 ## Self-Iteration Contract
 
