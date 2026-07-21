@@ -21,10 +21,8 @@ Resolve `<skill_root>` by locating the installed `talking-head-video-pipeline/SK
 1. Confirm the exact source and output directory.
 2. Reuse existing word-level transcript data before retranscribing.
 3. Select an adapter using `references/asr-adapters.md`.
-4. When a HyperFrames CLI command or version was explicitly supplied and verifies successfully, treat `hyperframes transcribe` as the active adapter. A failed `import whisper` alone is not a blocker.
-5. Confirm the media contains an audio stream and intelligible speech. Silence or a synthetic tone is a `no usable speech` input blocker, not an ASR installation blocker.
-6. Use spoken audio as timing truth. Use a supplied script only as a correction guide.
-7. Group semantic sentences and create:
+4. Use spoken audio as timing truth. Use a supplied script only as a correction guide.
+5. Group semantic sentences and create:
 
    ```text
    edit/script-aligned.srt
@@ -32,8 +30,8 @@ Resolve `<skill_root>` by locating the installed `talking-head-video-pipeline/SK
    edit/transcripts/<video_name>.json
    ```
 
-8. For text-only corrections, update SRT and CSV together without changing timestamps.
-9. Run:
+6. For text-only corrections, update SRT and CSV together without changing timestamps.
+7. Run:
 
    ```bash
    python3 <skill_root>/tools/caption_check.py \
@@ -41,7 +39,7 @@ Resolve `<skill_root>` by locating the installed `talking-head-video-pipeline/SK
      <project_dir>/edit/caption-table.csv
    ```
 
-10. Set state stage to `captions_ready` only after G1 passes.
+8. Set state stage to `captions_ready` only after G1 passes.
 
 ## Rules
 

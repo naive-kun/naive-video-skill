@@ -49,10 +49,6 @@ check_optional npm
 check_optional npx
 check_optional whisper
 
-if command -v npx >/dev/null 2>&1; then
-  echo "[note] HyperFrames transcription can be used when an explicit npx hyperframes command/version is supplied."
-fi
-
 echo
 if [[ "$missing_required" -eq 1 ]]; then
   echo "Install missing tools, then run this check again."
