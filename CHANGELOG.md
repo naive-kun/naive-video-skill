@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.1
+
+- Added HyperFrames CLI transcription as a first-class ASR adapter.
+- Clarified that a missing standalone Whisper package is not an ASR blocker when an explicitly supplied HyperFrames CLI is available.
+- Added a no-speech gate so synthetic tones and silent media still stop honestly instead of producing invented captions.
+
 ## 2.0.0
 
 - Added a root router and eleven focused child skills.

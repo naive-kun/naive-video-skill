@@ -7,6 +7,9 @@ trap 'rm -rf "$TMP_DIR"' EXIT
 
 python3 -m py_compile "$ROOT_DIR"/tools/*.py
 python3 "$ROOT_DIR/tools/validate_skill.py" "$ROOT_DIR"
+grep -q "hyperframes.*transcribe" "$ROOT_DIR/references/asr-adapters.md"
+grep -q "failed.*import whisper.*not a blocker\|failed.*import.*whisper.*not a blocker" \
+  "$ROOT_DIR/skills/naive-video-captions/SKILL.md"
 
 mkdir -p "$TMP_DIR/project"
 printf 'not a real video\n' > "$TMP_DIR/source.mp4"

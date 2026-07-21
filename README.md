@@ -98,7 +98,7 @@ HyperFrames 可按需运行：
 npx --yes hyperframes --help
 ```
 
-转写能力不绑定某一个收费 API。Skill 会优先复用已有 SRT/CSV/JSON，其次检测本地 Whisper 类工具；都没有时会明确告诉你缺什么，而不是假装已经完成转写。
+转写能力不绑定某一个收费 API。Skill 会优先复用已有 SRT/CSV/JSON，其次使用已提供的 `hyperframes transcribe`，再检测本地 Whisper 类工具；都没有时会明确告诉你缺什么，而不是假装已经完成转写。纯音、静音或没有可识别语音的测试素材仍会如实停止。
 
 ## 四种风格起点
 
