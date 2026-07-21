@@ -16,6 +16,12 @@
 | Start | End | Spoken meaning | Card message | Placement |
 |---|---|---|---|---|
 
+## Semantic Motion
+
+- Motion density: balanced
+- Deterministic plan: `MOTION_PLAN.json`
+- Validation: pending
+
 ## Preview
 
 - Preview required: yes

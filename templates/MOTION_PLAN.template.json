@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0",
+  "timeline_duration": 15.0,
+  "motion_density": "balanced",
+  "protected_regions": ["face", "captions", "screenshots", "product-ui"],
+  "nodes": [
+    {
+      "node_id": "motion-001",
+      "recipe_id": "impact-pop",
+      "start": 0.5,
+      "end": 1.4,
+      "semantic_tag": "result",
+      "semantic_evidence": {
+        "start": 0.4,
+        "end": 1.5,
+        "text": "The final result is ready.",
+        "intent": "result"
+      },
+      "target": "result keyword",
+      "region": "center-safe",
+      "visual_role": "keyword-emphasis",
+      "covers_protected_regions": false,
+      "plugin": null,
+      "fallback": "GSAP core scale, y, and autoAlpha"
+    }
+  ]
+}

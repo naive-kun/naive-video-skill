@@ -11,7 +11,7 @@ Required top-level fields:
 ```json
 {
   "schema_version": "1.0",
-  "skill_version": "2.0.0",
+  "skill_version": "2.1.0",
   "project_name": "example-video",
   "stage": "initialized",
   "main_video": "<project-local-or-user-provided-path>",

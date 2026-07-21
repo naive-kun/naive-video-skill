@@ -6,6 +6,8 @@
 - Accent: #2F7DF4
 - Aspect ratio: preserve source
 - Motion density: balanced
+- Reference image: none
+- Reference strength: none
 
 ## Captions
 
@@ -27,6 +29,7 @@
 
 ## Motion
 
+- Semantic plan: `MOTION_PLAN.json`
 - Enter: scale, y, autoAlpha, back.out
 - Emphasis: short pulse or subtle shake
 - Exit: autoAlpha and y, complete before next protected asset

@@ -54,6 +54,30 @@ CSV：<path>
 动效 energetic，但展示截图时收敛。
 ```
 
+## Screenshot Style Reference
+
+```text
+参考这张截图设计视频风格：<image-path>
+按这张图的视觉语言做，但不要复制其中的品牌和内容。
+我是第一次用，请使用推荐的 medium 强度，并先告诉我你提取了哪些设计规则。
+```
+
+## Semantic GSAP Motion
+
+```text
+根据现有字幕自动匹配 GSAP 语义动效。
+数字、列举、对比、警告、流程、确认和结果要用不同的本地动效配方。
+动效密度 energetic，但不能遮挡人脸、字幕或截图；先检查 MOTION_PLAN.json，再做官方预览。
+```
+
+## Combined Beginner Setup
+
+```text
+用 $talking-head-video-pipeline 初始化这个口播项目：<video-path>
+我没有剪辑经验。请提醒我可以补一张喜欢的参考截图；如果我不提供，就用安全默认风格。
+设计完成后按字幕语义匹配 balanced GSAP 动效，先给官方预览，确认后再导出。
+```
+
 ## Resume
 
 ```text

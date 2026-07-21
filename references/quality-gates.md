@@ -44,6 +44,14 @@ Pass when `DESIGN.md` states:
 
 Every requested insert must also exist in `EDIT_PLAN.md` with start, end or duration, layout, audio behavior, and exit behavior.
 
+When semantic motion is used, `MOTION_PLAN.json` must pass:
+
+```bash
+python3 tools/motion_plan_check.py <project_dir>/MOTION_PLAN.json
+```
+
+When a screenshot reference is used, project-local `STYLE_REFERENCE.md` must record reference strength, extracted visual-language fields, prohibited copied elements, and any static-to-motion inference as `inferred`.
+
 ## G3 Preview Gate
 
 Pass when:
@@ -55,6 +63,8 @@ Pass when:
 - no card, caption, or PiP covers a protected region
 - requested demos actually play rather than freeze on one frame
 - preview uses a proxy only as a preview asset
+- every planned semantic node is implemented with its declared recipe or documented fallback
+- `energetic` does not consist only of subtitles and a recurring corner card, and meets the duration-aware coverage check
 
 When the renderer supports lint or inspect commands, run them at all insert boundaries and transitions.
 
