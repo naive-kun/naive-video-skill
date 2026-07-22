@@ -1,8 +1,3 @@
----
-name: naive-video-retro
-description: Run a structured post-delivery retrospective for a Naive Video Skill project. Use after a final export, after repeated revisions, when the user asks what should improve next time, or when confirmed feedback should become project or private-profile rules without leaking media, paths, brands, or customer information.
----
-
 # Naive Video Retro
 
 Close the production loop with facts, explicit feedback, and testable improvements.
@@ -26,8 +21,8 @@ Resolve `<skill_root>` by locating the installed `talking-head-video-pipeline/SK
 3. For every failure, record the smallest responsible layer and one preventive check.
 4. Write the factual result to `VIDEO_RETRO.md`; do not paste transcripts, screenshots, customer data, or long logs.
 5. Present candidate lessons to the user before promoting them.
-6. Route confirmed project rules to `naive-video-learn` with `project` scope.
-7. Route explicitly cross-project rules to `naive-video-learn` with `profile` scope.
+6. Send confirmed project rules to the internal learn workflow with `project` scope.
+7. Send explicitly cross-project rules to the internal learn workflow with `profile` scope.
 8. Keep general product candidates sanitized and local until a maintainer reviews them.
 9. Record the retro path without changing the completed production stage:
 

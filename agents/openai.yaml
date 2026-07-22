@@ -1,6 +1,6 @@
 interface:
   display_name: "Naive Video Skill"
-  short_description: "From talking-head footage to captions, motion preview, and final export."
-  default_prompt: "Use $talking-head-video-pipeline to initialize my video project, guide me through captions and style, build an official preview, and export only after I approve it."
+  short_description: "Beginner-first rough cut, captions, assets, motion preview, and final export."
+  default_prompt: "Use $talking-head-video-pipeline as a step-by-step mentor: check whether my footage needs an optional rough cut, guide captions and asset placement, build an official preview, and export only after I approve it."
 policy:
   allow_implicit_invocation: true

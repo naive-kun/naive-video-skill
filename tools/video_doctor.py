@@ -9,6 +9,8 @@ import shutil
 import sys
 from pathlib import Path
 
+from design_check import validate as validate_design
+
 
 REQUIRED_COMMANDS = ("python3", "ffmpeg", "ffprobe")
 OPTIONAL_COMMANDS = ("node", "npm", "npx")
@@ -56,7 +58,7 @@ def main() -> int:
     state_path = project / ".naive-video-state.json"
     state = None
     if not state_path.exists():
-        blockers.append("missing .naive-video-state.json; run naive-video-init")
+        blockers.append("missing .naive-video-state.json; run the root skill's init workflow")
     else:
         try:
             state = json.loads(state_path.read_text(encoding="utf-8"))
@@ -93,6 +95,18 @@ def main() -> int:
                 blockers.append(f"main video missing: {source}")
             else:
                 info.append(f"main video: {source}")
+
+        working_video = state.get("working_video")
+        if working_video:
+            working = resolve_project_path(project, str(working_video))
+            if not working.exists():
+                blockers.append(f"working video missing: {working}")
+            else:
+                info.append(f"working video: {working}")
+            if state.get("master_audio") != "working_video":
+                warnings.append("working_video exists but master_audio is not working_video")
+        elif state.get("master_audio") == "working_video":
+            blockers.append("master_audio points to working_video, but no working_video is recorded")
 
         approval = state.get("approval", {})
         if stage in {"approved", "rendering", "final_ready"} and approval.get("status") not in {
@@ -131,6 +145,15 @@ def main() -> int:
             csv = project / "edit" / "caption-table.csv"
             if not srt.exists() or not csv.exists():
                 blockers.append("stage expects caption files, but SRT or CSV is missing")
+
+        if stage in {"design_ready", "preview_ready", "approved", "rendering", "final_ready"}:
+            design_path = project / "DESIGN.md"
+            if design_path.exists():
+                design_errors = validate_design(design_path)
+                if design_errors:
+                    blockers.extend(f"design contract: {error}" for error in design_errors)
+                else:
+                    info.append("design contract: passed")
 
         if stage in {"preview_ready", "approved", "rendering", "final_ready"}:
             preview_dir = project / "preview"

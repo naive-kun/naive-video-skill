@@ -24,6 +24,10 @@ RECIPE_TAGS = {
     "approval-stamp": {"confirmation", "result"},
     "warning-shake": {"warning"},
     "before-after-reveal": {"compare", "result"},
+    "focus-frame": {"question", "verify", "compare"},
+    "seekable-type": {"process", "result"},
+    "split-reveal": {"list", "process", "result", "warning"},
+    "glass-notification": {"warning", "confirmation", "result"},
 }
 
 TEXT_CUES = {

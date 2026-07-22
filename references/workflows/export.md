@@ -1,8 +1,3 @@
----
-name: naive-video-export
-description: Export and verify the final video for a Naive Video Skill project. Use when the user approves a preview, explicitly asks to skip preview, requests a final or 4K deliverable, wants original audio preserved, or needs a stable original-source plus transparent-overlay composition for high-resolution HEVC or Main10 media.
----
-
 # Naive Video Export
 
 Render the approved composition with original-quality media and master audio.
@@ -13,7 +8,7 @@ Resolve `<skill_root>` by locating the installed `talking-head-video-pipeline/SK
 
 1. Read state and G4 approval.
 2. If approval is pending, stop and request preview confirmation unless state records `skipped_by_user`.
-3. Re-run G0 and confirm the original source still exists.
+3. Re-run G0 and confirm the original `main_video` still exists. Resolve the timeline base as `working_video` when present, otherwise `main_video`.
 4. Determine final target resolution from the request or source; do not infer true 4K from a 1080p proxy.
 
 ## Stable Strategy
@@ -21,9 +16,9 @@ Resolve `<skill_root>` by locating the installed `talking-head-video-pipeline/SK
 Prefer:
 
 1. Render transparent motion overlays at final resolution.
-2. Use the original source as the ffmpeg base.
+2. Use the approved full-quality timeline base (`working_video` after rough cutting, otherwise `main_video`) as the ffmpeg base.
 3. Composite inserted demos and overlays at their timeline positions.
-4. Map the original main audio.
+4. Map audio from that same intended timeline base.
 
 Use this strategy for 4K HEVC/Main10 or whenever preserving the locked base is important. Read `references/export-recipes.md`.
 
@@ -46,6 +41,7 @@ Verify with `ffprobe`:
 - frame rate
 - video codec
 - audio codec and stream presence
+- intended timeline-base audio packet count or equivalent synchronization evidence
 
 Perform visual frame checks unless the user explicitly declines them. Set `final_ready` only after G5 passes.
 

@@ -1,8 +1,3 @@
----
-name: naive-video-revise
-description: Apply scoped revisions to an existing Naive Video Skill project. Use when the user reports a visual problem, asks to restore an earlier version, changes a caption or insert, wants a different color or card style, or asks to preserve liked parts while fixing only the named issue.
----
-
 # Naive Video Revise
 
 Change the smallest responsible layer and preserve approved work.
@@ -24,7 +19,7 @@ Resolve `<skill_root>` by locating the installed `talking-head-video-pipeline/SK
 
 ## Feedback Handling
 
-Do not write a permanent lesson automatically. If the user explicitly says the rule should apply in future, route to `naive-video-learn` after the revision is confirmed.
+Do not write a permanent lesson automatically. If the user explicitly says the rule should apply in future, load the internal learn workflow after the revision is confirmed.
 
 ## Completion
 

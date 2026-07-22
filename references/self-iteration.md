@@ -72,7 +72,7 @@ The default profile path is `~/.naive-video/profiles/default.json`. It must cont
 
 On initialization, `tools/bootstrap.py` loads this default profile automatically and imports its active rules into the project's `VIDEO_LESSONS.md`. Use `--profile none` for a project that must ignore it.
 
-After final delivery, use `naive-video-retro` and `VIDEO_RETRO.md` to distinguish reproducible failures from one-off taste feedback before promoting rules.
+After final delivery, use the internal retro workflow and `VIDEO_RETRO.md` to distinguish reproducible failures from one-off taste feedback before promoting rules.
 
 ## Conflict Rules
 

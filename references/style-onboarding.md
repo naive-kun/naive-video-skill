@@ -7,7 +7,7 @@ Collect the smallest style profile that can produce a safe preview.
 Ask one question at a time:
 
 1. What format: preserve source, 16:9, 9:16, or 1:1?
-2. Do you have a screenshot whose color, hierarchy, card shape, or composition you like? Explain that this is optional and will not copy its brand, logo, person, wording, or complete UI.
+2. Do you have a screenshot whose color, hierarchy, card shape, or composition you like? Explain that this optional style reference is different from evidence assets shown inside the video.
 3. If a screenshot is supplied, recommend `medium` reference strength unless the user chooses `low` or `high`.
 4. Otherwise, which preset: clean, dark, sticker, or minimal?
 5. What accent color? Accept a color name or hex. Offer to keep the preset default.
@@ -75,15 +75,24 @@ Write:
 - Reference image: none | project-local path
 - Reference strength: none | low | medium | high
 
+## Typography
+- Font family:
+- Display weight:
+- Body weight:
+- Text transform: level readable text; animate the container
+
 ## Captions
 - Style:
 - Position:
 - Keyword behavior:
+- Maximum lines: 1 | 2
+- Wrap policy:
 
-## Cards
+## Components
+- Primary family:
+- Notification family:
 - Surface:
-- Typography:
-- Maximum simultaneous cards:
+- Maximum simultaneous components:
 
 ## Safe Zones
 - Face:
@@ -91,6 +100,8 @@ Write:
 - Screenshots/UI:
 
 ## Motion
+- Timeline driver: one paused, seekable GSAP timeline
+- Font measurement: after document.fonts.ready
 - Enter:
 - Emphasis:
 - Exit:
@@ -98,6 +109,8 @@ Write:
 ## Do Not
 - Do not change source timing or master audio.
 - Do not cover evidence.
+- Do not skew or rotate readable text.
+- Do not embed private creator styling in a public default.
 ```
 
 Use CSS variables such as `--accent`, `--surface`, `--text`, and `--muted` so a user can change color without rewriting motion logic.

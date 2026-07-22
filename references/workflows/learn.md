@@ -1,8 +1,3 @@
----
-name: naive-video-learn
-description: Record explicit, reusable video-editing feedback into a user's project-local Naive Video Skill profile. Use when the user says remember this style, always do this, never do this again, make future videos follow this rule, or wants the workflow to improve from confirmed revisions without exposing private information.
----
-
 # Naive Video Learn
 
 Turn explicit feedback into a testable project-local rule.

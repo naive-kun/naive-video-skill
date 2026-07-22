@@ -1,8 +1,3 @@
----
-name: naive-video-captions
-description: Generate, validate, or text-revise caption timing for a Naive Video Skill project. Use when the user asks to transcribe, extract caption timing, create SRT/CSV/transcript JSON, use an existing script as a correction guide, replace caption text without changing timing, or diagnose caption-axis problems while leaving source video untouched.
----
-
 # Naive Video Captions
 
 Produce editable caption files without changing the source video.
@@ -11,7 +6,7 @@ Resolve `<skill_root>` by locating the installed `talking-head-video-pipeline/SK
 
 ## Inputs
 
-- main video from state or user message
+- `working_video` from state when an approved rough cut exists, otherwise `main_video` or the video from the user message
 - optional existing SRT, CSV, or transcript JSON
 - optional correction script
 - optional terminology list
@@ -47,6 +42,7 @@ Resolve `<skill_root>` by locating the installed `talking-head-video-pipeline/SK
 - Avoid zero-duration or near-zero flash captions.
 - Keep proper nouns consistent.
 - Do not pretend transcription succeeded when no adapter or usable caption source exists.
+- Do not ask users with valid existing captions to choose a cloud or local provider.
 
 ## Completion
 

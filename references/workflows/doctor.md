@@ -1,8 +1,3 @@
----
-name: naive-video-doctor
-description: Perform a read-only environment and project consistency diagnosis for Naive Video Skill. Use when setup fails, dependencies are missing, preview is blank or frozen, state is inconsistent, output paths are missing, captions fail validation, a render appears stuck, or the user asks for a health check before repair.
----
-
 # Naive Video Doctor
 
 Diagnose before changing anything.
@@ -29,12 +24,18 @@ Captions:
 python3 <skill_root>/tools/caption_check.py <srt> [<csv>]
 ```
 
+Design contract:
+
+```bash
+python3 <skill_root>/tools/design_check.py <project_dir>/DESIGN.md
+```
+
 ## Diagnosis Order
 
 1. Missing required tools.
 2. Missing or invalid state.
 3. Missing source or outputs referenced by state.
-4. Failed quality gate.
+4. Failed caption, typography, component, or other quality gate.
 5. Renderer process or port state.
 6. Codec/browser compatibility.
 7. Timeline or asset-duration mismatch.
