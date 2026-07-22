@@ -2,6 +2,8 @@
 
 Load this reference when planning or implementing semantic motion. Recipes use GSAP core primitives already present in the project. Never install an effects package just to satisfy a recipe.
 
+Read [visual-quality-rules.md](visual-quality-rules.md) for typography, component geometry, public/private style boundaries, and deterministic adaptation of web-component behavior. These recipes define motion roles; they do not prescribe a creator's colors, fonts, or card system.
+
 ## Density Policy
 
 - `restrained`: essential emphasis only; protect evidence-heavy intervals.
@@ -15,16 +17,16 @@ Evidence, face, product UI, and caption protected regions always override densit
 | Intent tag | Typical caption cues | Preferred recipes |
 |---|---|---|
 | `number` | digits, percentages, counts, prices, durations | `counter-roll`, `impact-pop` |
-| `list` | first/second, steps, multiple items | `stagger-list` |
-| `compare` | versus, before/after, but, higher/lower | `compare-split`, `before-after-reveal` |
-| `warning` | risk, danger, do not, failure | `warning-shake`, `spotlight-mask` |
-| `process` | workflow, steps, then, sequence | `connector-flow`, `timeline-lock` |
+| `list` | first/second, steps, multiple items | `stagger-list`, `split-reveal` |
+| `compare` | versus, before/after, but, higher/lower | `compare-split`, `before-after-reveal`, `focus-frame` |
+| `warning` | risk, danger, do not, failure | `warning-shake`, `spotlight-mask`, `split-reveal`, `glass-notification` |
+| `process` | workflow, steps, then, sequence | `connector-flow`, `timeline-lock`, `seekable-type`, `split-reveal` |
 | `causality` | because, therefore, leads to | `connector-flow`, `spotlight-mask` |
 | `task-transfer` | assign, hand off, route to | `connector-flow` |
-| `confirmation` | approve, confirm, passed, accepted | `approval-stamp`, `scan-verify` |
-| `result` | result, completed, finally, outcome | `before-after-reveal`, `impact-pop` |
-| `question` | why, how, whether, question mark | `spotlight-mask`, `impact-pop` |
-| `verify` | check, scan, validate, inspect | `scan-verify` |
+| `confirmation` | approve, confirm, passed, accepted | `approval-stamp`, `scan-verify`, `glass-notification` |
+| `result` | result, completed, finally, outcome | `before-after-reveal`, `impact-pop`, `seekable-type`, `split-reveal`, `glass-notification` |
+| `question` | why, how, whether, question mark | `spotlight-mask`, `impact-pop`, `focus-frame` |
+| `verify` | check, scan, validate, inspect | `scan-verify`, `focus-frame` |
 | `timeline` | sync, locked timing, aligned audio | `timeline-lock` |
 
 ## Recipe Catalog
@@ -160,3 +162,51 @@ Evidence, face, product UI, and caption protected regions always override densit
 - Safe area: both states share a fixed frame and readable scale.
 - No-plugin fallback: overflow-hidden wrapper with translated inner layer.
 - Not for: unrelated images, misleading edits, or evidence requiring simultaneous comparison.
+
+### focus-frame
+- `recipe_id`: `focus-frame`
+- Semantic tags: `question`, `verify`, `compare`
+- Recommended duration: 0.80-2.40s
+- GSAP primitives: `timeline`, `x`, `y`, `width`, `height`, `filter`, `autoAlpha`
+- Enter: establish a stable word or label group, then resolve the first measured target.
+- Emphasis: move one outline or four corner marks between targets while inactive words receive only mild blur.
+- Exit: clear blur first, then fade the frame.
+- Safe area: use inside a structured component; measure after fonts load.
+- No-plugin fallback: absolutely positioned DOM corners moved by GSAP core.
+- Not for: full-screen loose typography, unreadable blur, timer-driven cycling, or targets measured before fonts load.
+
+### seekable-type
+- `recipe_id`: `seekable-type`
+- Semantic tags: `process`, `result`
+- Recommended duration: 0.70-2.20s
+- GSAP primitives: `timeline`, `steps`, deterministic textContent update, cursor autoAlpha
+- Enter: reveal a short auxiliary line from timeline time with a fixed character count.
+- Emphasis: cursor blinks a finite number of times, then settles.
+- Exit: fade the complete line as one unit; do not run a deletion loop.
+- Safe area: compact status or prompt area with fixed width.
+- No-plugin fallback: derive `text.slice(0, count)` from normalized progress.
+- Not for: captions, paragraphs, random speed, infinite loops, setTimeout, or viewport visibility triggers.
+
+### split-reveal
+- `recipe_id`: `split-reveal`
+- Semantic tags: `list`, `process`, `result`, `warning`
+- Recommended duration: 0.60-1.80s
+- GSAP primitives: `fromTo`, `y`, `autoAlpha`, `stagger`, optional installed SplitText
+- Enter: reveal words by default; use characters only for very short emphasis.
+- Emphasis: settle the complete phrase before other motion begins.
+- Exit: animate the wrapper or grouped targets, then revert stale split instances when rebuilding.
+- Safe area: inside a structured component with explicit overflow behavior.
+- No-plugin fallback: wrap words in spans and stagger with GSAP core.
+- Not for: long body copy, pre-font measurement, dense per-character animation, or ScrollTrigger in a video-time composition.
+
+### glass-notification
+- `recipe_id`: `glass-notification`
+- Semantic tags: `warning`, `confirmation`, `result`
+- Recommended duration: 0.80-2.20s
+- GSAP primitives: `fromTo`, `y`, `scale`, `autoAlpha`, `back.out`, short progress sweep
+- Enter: the complete aligned notification settles as one component.
+- Emphasis: resolve one icon, status dot, or progress line without shifting text baselines.
+- Exit: grouped fade and short vertical travel.
+- Safe area: verified empty region with sufficient contrast against the source.
+- No-plugin fallback: translucent DOM surface, border, and core transforms.
+- Not for: recreating a branded operating-system screen, weak contrast, excessive blur, or stacking many simultaneous notices.

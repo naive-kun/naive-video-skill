@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SUB_SKILLS=(
+ROOT_SKILL="talking-head-video-pipeline"
+LEGACY_SKILLS=(
   naive-video-init
+  naive-video-roughcut
   naive-video-captions
   naive-video-design
   naive-video-preview
@@ -14,11 +16,12 @@ SUB_SKILLS=(
   naive-video-retro
   naive-video-migrate
 )
-ROOT_SKILL="talking-head-video-pipeline"
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 MODE="symlink"
 TARGET="codex"
 FORCE=0
+BACKUP_STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
+SAFETY_HOME="${NAIVE_VIDEO_SAFETY_HOME:-$HOME/.naive-video-skill}"
 
 usage() {
   echo "Usage: bash install.sh [--codex|--claude|--all] [--copy] [--force]"
@@ -39,35 +42,122 @@ done
 python3 "$SCRIPT_DIR/tools/validate_skill.py" "$SCRIPT_DIR"
 
 skill_source() {
-  local name="$1"
-  if [[ "$name" == "$ROOT_SKILL" ]]; then
-    echo "$SCRIPT_DIR"
+  echo "$SCRIPT_DIR"
+}
+
+target_id() {
+  local target_dir="$1"
+  if [[ "$target_dir" == "$HOME/.codex/skills" ]]; then
+    echo "codex"
+  elif [[ "$target_dir" == "$HOME/.claude/skills" ]]; then
+    echo "claude"
   else
-    echo "$SCRIPT_DIR/skills/$name"
+    echo "custom"
   fi
+}
+
+same_symlink() {
+  local destination="$1"
+  local source="$2"
+  [[ "$MODE" == "symlink" && -L "$destination" ]] || return 1
+  python3 - "$destination" "$source" <<'PY'
+import sys
+from pathlib import Path
+
+destination, source = map(Path, sys.argv[1:])
+raise SystemExit(0 if destination.resolve() == source.resolve() else 1)
+PY
+}
+
+confirm_replacement() {
+  local target_dir="$1"
+  local source destination
+  local needs_backup=0
+  destination="$target_dir/$ROOT_SKILL"
+  source="$(skill_source)"
+  if [[ -e "$destination" || -L "$destination" ]]; then
+    if ! same_symlink "$destination" "$source"; then
+      needs_backup=1
+    fi
+  fi
+  if [[ "$needs_backup" -eq 0 ]]; then
+    local legacy
+    for legacy in "${LEGACY_SKILLS[@]}"; do
+      if [[ -e "$target_dir/$legacy" || -L "$target_dir/$legacy" ]]; then
+        needs_backup=1
+        break
+      fi
+    done
+  fi
+  [[ "$needs_backup" -eq 1 ]] || return 0
+  [[ "$FORCE" -eq 1 ]] && return 0
+
+  printf 'Existing Naive Video Skill files will be moved to a timestamped backup before installation. Continue? [y/N] '
+  read -r answer
+  [[ "$answer" =~ ^[Yy]$ ]]
+}
+
+archive_legacy_skills() {
+  local target_dir="$1"
+  local id backup_root
+  id="$(target_id "$target_dir")"
+  backup_root="$SAFETY_HOME/backups/$id/$BACKUP_STAMP/legacy"
+  local legacy source
+  for legacy in "${LEGACY_SKILLS[@]}"; do
+    source="$target_dir/$legacy"
+    if [[ -e "$source" || -L "$source" ]]; then
+      mkdir -p "$backup_root"
+      mv "$source" "$backup_root/$legacy"
+      echo "Archived legacy skill entry: $source -> $backup_root/$legacy"
+    fi
+  done
 }
 
 install_one() {
   local target_dir="$1"
   local name="$2"
-  local source
+  local source backup backup_root failed_root
   local destination="$target_dir/$name"
-  source="$(skill_source "$name")"
+  source="$(skill_source)"
+  local id
+  id="$(target_id "$target_dir")"
+  backup_root="$SAFETY_HOME/backups/$id/$BACKUP_STAMP"
+  failed_root="$SAFETY_HOME/failed/$id/$BACKUP_STAMP"
+  backup=""
 
   if [[ -e "$destination" || -L "$destination" ]]; then
-    if [[ "$FORCE" -ne 1 ]]; then
-      printf 'Replace existing %s? [y/N] ' "$destination"
-      read -r answer
-      [[ "$answer" =~ ^[Yy]$ ]] || return 0
+    if same_symlink "$destination" "$source"; then
+      echo "Already installed: $destination"
+      return 0
     fi
-    rm -rf "$destination"
+    mkdir -p "$backup_root"
+    backup="$backup_root/$name"
+    mv "$destination" "$backup"
+    echo "Backed up: $destination -> $backup"
   fi
 
   if [[ "$MODE" == "copy" ]]; then
-    cp -R "$source" "$destination"
-    rm -rf "$destination/.git"
+    if ! python3 "$SCRIPT_DIR/tools/install_copy.py" "$source" "$destination"; then
+      echo "ERROR: copy installation failed for $name" >&2
+      if [[ -e "$destination" || -L "$destination" ]]; then
+        mkdir -p "$failed_root"
+        mv "$destination" "$failed_root/$name"
+      fi
+      if [[ -n "$backup" && ( -e "$backup" || -L "$backup" ) ]]; then
+        mv "$backup" "$destination"
+        echo "Restored previous installation: $destination"
+      fi
+      return 1
+    fi
   else
-    ln -s "$source" "$destination"
+    if ! ln -s "$source" "$destination"; then
+      echo "ERROR: symlink installation failed for $name" >&2
+      if [[ -n "$backup" && ( -e "$backup" || -L "$backup" ) ]]; then
+        mv "$backup" "$destination"
+        echo "Restored previous installation: $destination"
+      fi
+      return 1
+    fi
   fi
   echo "Installed: $destination"
 }
@@ -77,10 +167,13 @@ install_target() {
   local target_dir="$2"
   mkdir -p "$target_dir"
   echo "Installing for $label in $MODE mode"
+  echo "Safety: existing installations are backed up, never bulk-deleted."
+  if ! confirm_replacement "$target_dir"; then
+    echo "Installation cancelled for $label; existing files were not changed."
+    return 0
+  fi
+  archive_legacy_skills "$target_dir"
   install_one "$target_dir" "$ROOT_SKILL"
-  for name in "${SUB_SKILLS[@]}"; do
-    install_one "$target_dir" "$name"
-  done
 }
 
 if [[ "$TARGET" == "codex" || "$TARGET" == "all" ]]; then
@@ -92,4 +185,5 @@ fi
 
 echo
 echo "Install complete. Restart the agent if the skills do not appear."
+echo "Existing installations, if any, were preserved outside skill discovery under $SAFETY_HOME/backups/."
 echo "First prompt: 用 \$talking-head-video-pipeline 初始化视频项目，这是主视频：<path>"

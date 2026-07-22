@@ -11,10 +11,11 @@ Required top-level fields:
 ```json
 {
   "schema_version": "1.0",
-  "skill_version": "2.1.0",
+  "skill_version": "2.2.0",
   "project_name": "example-video",
   "stage": "initialized",
   "main_video": "<project-local-or-user-provided-path>",
+  "working_video": null,
   "master_audio": "main_video",
   "preview_required": true,
   "approval": {
@@ -41,6 +42,7 @@ Required top-level fields:
 - Never store API keys, transcript bodies, customer names, screenshot contents, or render logs in state.
 - Keep user-supplied absolute paths only in the user's private project state. They must never be copied into this public skill repository.
 - Preserve unknown fields during migration.
+- Keep `main_video` as the immutable original. When the user approves a derived rough cut, store it in `working_video`, set `master_audio` to `working_video`, and use it for every downstream stage.
 - Set `last_error` only for an unresolved blocker; clear it after the relevant gate passes.
 - Use stage values from the root `SKILL.md` only.
 
@@ -70,6 +72,7 @@ python3 tools/state.py --project <project_dir> show
 python3 tools/state.py --project <project_dir> stage captions_ready
 python3 tools/state.py --project <project_dir> approval approved --url <preview_url>
 python3 tools/state.py --project <project_dir> output final <final_video>
+python3 tools/state.py --project <project_dir> working-video <approved_rough_cut>
 ```
 
 Stage regression requires `--force` and should be used only for a revision or a failed downstream gate.

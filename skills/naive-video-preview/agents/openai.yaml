@@ -1,6 +1,0 @@
-interface:
-  display_name: "Naive Video Preview"
-  short_description: "Build a safe HyperFrames and GSAP motion preview."
-  default_prompt: "Use $naive-video-preview to build and validate an official motion preview before final export."
-policy:
-  allow_implicit_invocation: true

@@ -1,6 +1,0 @@
-interface:
-  display_name: "Naive Video Revise"
-  short_description: "Fix one visible issue while preserving approved work."
-  default_prompt: "Use $naive-video-revise to make this scoped change and preserve everything I already approved."
-policy:
-  allow_implicit_invocation: true

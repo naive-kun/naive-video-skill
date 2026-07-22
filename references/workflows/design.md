@@ -1,8 +1,3 @@
----
-name: naive-video-design
-description: Design the visual system and complete the timeline plan for a Naive Video Skill project before rendering. Use when the user asks for color or style choices, semantic cards, screenshot and demo placement, PiP or mask layout, richer motion without covering evidence, or wants the agent to decide the visual treatment from captions and supplied assets.
----
-
 # Naive Video Design
 
 Turn captions, assets, and spoken meaning into a render-ready `DESIGN.md` and `EDIT_PLAN.md`.
@@ -19,17 +14,18 @@ Resolve `<skill_root>` by locating the installed `talking-head-video-pipeline/SK
 
 ## Workflow
 
-1. Read `references/style-onboarding.md` and `references/layout-safety.md`.
+1. Read `references/style-onboarding.md`, `references/asset-onboarding.md`, `references/layout-safety.md`, `references/visual-quality-rules.md`, and `references/gsap-runtime.md`.
 2. Reuse active confirmed profile rules. Project-specific instructions override the profile for this video only.
 3. If style is still unknown, use quick defaults or ask one guided question at a time. Offer beginners an optional screenshot reference; do not require one.
-4. Inspect image dimensions and video durations. Never guess how long a supplied demo runs.
-5. Fill `EDIT_PLAN.md` with every requested insert: start, end or duration, layout, source-audio behavior, exit, and protected regions.
-6. Read `references/motion-recipes.md`. Match caption intent to recipes and write `MOTION_PLAN.json` from `templates/MOTION_PLAN.template.json`. Every node needs caption evidence, start/end, region, visual role, and fallback behavior.
-7. Add semantic cards only in intervals without screenshot or demo conflicts. Evidence intervals reduce density and may suppress decorative nodes.
-8. Write `DESIGN.md` with CSS-friendly color variables, caption rules, card hierarchy, motion density, PiP/mask geometry, and safe zones.
-9. Check text contrast and longest-label fit.
-10. Run `python3 <skill_root>/tools/motion_plan_check.py <project_dir>/MOTION_PLAN.json`, then G2 from `references/quality-gates.md`.
-11. Set stage to `design_ready` with `tools/state.py` only after G2 passes.
+4. If visual assets exist and placement mode is not already known, ask whether the user wants semantic placement or exact seconds/spoken-sentence anchors. Recommend semantic placement for speed, but say exact anchors are more precise; accept a hybrid.
+5. Inspect image dimensions and video durations. Never guess how long a supplied demo runs.
+6. Fill `EDIT_PLAN.md` with the placement mode and every requested insert: original anchor, resolved start, end or duration, layout, source-audio behavior, entrance, exit, caption evidence, and protected regions.
+7. Read `references/motion-recipes.md`. Match caption intent to recipes and write `MOTION_PLAN.json` from `templates/MOTION_PLAN.template.json`. Every node needs caption evidence, start/end, region, visual role, and fallback behavior.
+8. Add semantic cards only in intervals without screenshot or demo conflicts. Evidence intervals reduce density and may suppress decorative nodes.
+9. Write `DESIGN.md` with CSS-friendly color variables, an explicit typography contract, caption maximum lines and wrap policy, component families, motion density, PiP/mask geometry, and safe zones. Keep creator-specific styling in the private profile rather than the public default.
+10. Check the intended font family and real weight, text baseline, longest-label fit, caption line policy, and glass-surface contrast.
+11. Run `python3 <skill_root>/tools/design_check.py <project_dir>/DESIGN.md` and `python3 <skill_root>/tools/motion_plan_check.py <project_dir>/MOTION_PLAN.json`, then G2 from `references/quality-gates.md`.
+12. Set stage to `design_ready` with `tools/state.py` only after G2 passes.
 
 ## Screenshot Reference Branch
 
@@ -50,7 +46,11 @@ Never copy a logo, watermark, person, brand UI, original wording, or a complete 
 - Do not invent a personal brand when the user did not provide one.
 - Keep colors configurable; do not bake one creator's palette into the public skill.
 - Explain semantic cards with short readable text, not full transcript paragraphs.
+- Keep readable text level and baseline-aligned. Animate a wrapper instead of skewing or rotating labels, captions, or button text.
+- Treat GSAP as the motion layer, not a substitute for typography, spacing, surface, or component geometry.
+- Use focus-frame, seekable-type, split-reveal, and glass-notification only for their declared semantic roles and record a deterministic fallback.
 - Use only GSAP capabilities already available in the project. If a plan names an unavailable plugin, use the recorded no-plugin fallback.
+- Do not vendor a personal GSAP download into the public skill. Use project-local npm installation or selected official browser files after `tools/gsap_check.py` passes.
 - `energetic` is a coverage goal, not permission to cover evidence or stack effects mechanically.
 
 ## Completion

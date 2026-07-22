@@ -1,6 +1,0 @@
-interface:
-  display_name: "Naive Video Status"
-  short_description: "Report stage, render progress, blockers, and next action."
-  default_prompt: "Use $naive-video-status to tell me exactly where this video project is and what happens next."
-policy:
-  allow_implicit_invocation: true

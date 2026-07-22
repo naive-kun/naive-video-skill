@@ -15,21 +15,25 @@ ABSOLUTE_PRIVATE = re.compile(r"(?<![A-Za-z0-9_$.-])/(?:Users|home)/[^/< >\"']+"
 SECRET = re.compile(
     r"(?i)(?:api[_-]?key|secret|password|access[_-]?token)\s*[:=]\s*[\"'][^\"']{6,}[\"']"
 )
-ROUTED_SKILLS = (
-    "naive-video-init",
-    "naive-video-captions",
-    "naive-video-design",
-    "naive-video-preview",
-    "naive-video-export",
-    "naive-video-revise",
-    "naive-video-status",
-    "naive-video-doctor",
-    "naive-video-learn",
-    "naive-video-retro",
-    "naive-video-migrate",
+WORKFLOW_FILES = (
+    "init.md",
+    "rough-cut.md",
+    "captions.md",
+    "design.md",
+    "preview.md",
+    "export.md",
+    "revise.md",
+    "status.md",
+    "doctor.md",
+    "learn.md",
+    "retro.md",
+    "migrate.md",
 )
 TEXT_SUFFIXES = {".md", ".txt", ".json", ".yaml", ".yml", ".py", ".sh", ".csv"}
 MARKDOWN_LINK = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
+RECURSIVE_FORCE_DELETE = re.compile(
+    r"\b" + "r" + "m" + r"\s+-(?:[^\s]*r[^\s]*f|[^\s]*f[^\s]*r)\b"
+)
 
 
 def frontmatter(path: Path) -> tuple[dict[str, str], list[str]]:
@@ -83,6 +87,14 @@ def privacy_findings(root: Path) -> list[str]:
                 findings.append(f"{path.relative_to(root)}:{line_number}: personal absolute path")
             if SECRET.search(line):
                 findings.append(f"{path.relative_to(root)}:{line_number}: possible embedded secret")
+            if RECURSIVE_FORCE_DELETE.search(line):
+                findings.append(
+                    f"{path.relative_to(root)}:{line_number}: recursive force-delete command is forbidden"
+                )
+            if "shutil." + "rmtree" in line:
+                findings.append(
+                    f"{path.relative_to(root)}:{line_number}: recursive tree deletion is forbidden"
+                )
     return findings
 
 
@@ -94,21 +106,31 @@ def validate(root: Path) -> list[str]:
     _, fm_errors = frontmatter(root_skill)
     errors.extend(f"SKILL.md: {item}" for item in fm_errors)
 
-    for skill_name in ROUTED_SKILLS:
-        path = root / "skills" / skill_name / "SKILL.md"
+    skill_manifests = [
+        path for path in root.rglob("SKILL.md") if ".git" not in path.parts
+    ]
+    if len(skill_manifests) != 1 or skill_manifests[0] != root_skill:
+        listed = ", ".join(str(path.relative_to(root)) for path in skill_manifests)
+        errors.append(
+            "public package must expose exactly one SKILL.md for WorkBuddy-style installers; "
+            f"found: {listed or 'none'}"
+        )
+
+    for workflow_name in WORKFLOW_FILES:
+        path = root / "references" / "workflows" / workflow_name
         if not path.exists():
-            errors.append(f"missing routed skill: skills/{skill_name}/SKILL.md")
-            continue
-        fields, child_errors = frontmatter(path)
-        if fields.get("name") and fields["name"] != skill_name:
-            child_errors.append(f"name does not match folder: {fields['name']} != {skill_name}")
-        errors.extend(f"skills/{skill_name}/SKILL.md: {item}" for item in child_errors)
-        if not (root / "skills" / skill_name / "agents" / "openai.yaml").exists():
-            errors.append(f"missing agent metadata: skills/{skill_name}/agents/openai.yaml")
+            errors.append(f"missing internal workflow: references/workflows/{workflow_name}")
 
     for path in (
         root / "agents" / "openai.yaml",
         root / "templates" / "state.template.json",
+        root / "references" / "visual-quality-rules.md",
+        root / "references" / "video-use-integration.md",
+        root / "references" / "asset-onboarding.md",
+        root / "references" / "gsap-runtime.md",
+        root / "tools" / "design_check.py",
+        root / "tools" / "gsap_check.py",
+        root / "tools" / "install_copy.py",
         root / "migrations" / "registry.md",
         root / "VERSION",
         root / "install.sh",

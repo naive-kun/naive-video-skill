@@ -1,9 +1,10 @@
 {
   "schema_version": "1.0",
-  "skill_version": "2.1.0",
+  "skill_version": "2.2.0",
   "project_name": "<project_name>",
   "stage": "initialized",
   "main_video": "<main_video>",
+  "working_video": null,
   "master_audio": "main_video",
   "source_probe": {},
   "preview_required": true,

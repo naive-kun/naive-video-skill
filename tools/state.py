@@ -60,6 +60,9 @@ def build_parser() -> argparse.ArgumentParser:
     output.add_argument("name")
     output.add_argument("path")
 
+    working_video = subparsers.add_parser("working-video")
+    working_video.add_argument("path")
+
     style = subparsers.add_parser("style")
     style.add_argument("name")
     style.add_argument("value")
@@ -106,6 +109,15 @@ def main() -> int:
 
     elif args.command == "output":
         state.setdefault("outputs", {})[args.name] = args.path
+
+    elif args.command == "working-video":
+        working = Path(args.path).expanduser().resolve()
+        if not working.exists() or not working.is_file():
+            print(f"ERROR: working video not found: {working}", file=sys.stderr)
+            return 2
+        state["working_video"] = str(working)
+        state["master_audio"] = "working_video"
+        state.setdefault("outputs", {})["rough_cut"] = str(working)
 
     elif args.command == "style":
         state.setdefault("style_profile", {})[args.name] = args.value

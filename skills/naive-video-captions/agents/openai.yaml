@@ -1,6 +1,0 @@
-interface:
-  display_name: "Naive Video Captions"
-  short_description: "Create and validate synchronized SRT, CSV, and transcript files."
-  default_prompt: "Use $naive-video-captions to create or revise caption files without changing my source video."
-policy:
-  allow_implicit_invocation: true

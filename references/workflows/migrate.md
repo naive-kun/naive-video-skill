@@ -1,8 +1,3 @@
----
-name: naive-video-migrate
-description: Safely migrate an older or partially initialized Naive Video Skill project to the current state schema. Use after updating the skill, when schema versions differ, when an old project has outputs but no state file, or when the user asks to upgrade project state without moving or overwriting media.
----
-
 # Naive Video Migrate
 
 Upgrade metadata, never media.

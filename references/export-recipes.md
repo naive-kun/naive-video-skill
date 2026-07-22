@@ -8,8 +8,10 @@ These are patterns, not mandatory commands. Adapt paths, codecs, and bitrates to
 ffprobe -v error \
   -show_entries format=duration,size \
   -show_entries stream=index,codec_type,codec_name,width,height,r_frame_rate,duration,pix_fmt \
-  -of json "<main_video>"
+  -of json "<timeline_video>"
 ```
+
+Resolve `<timeline_video>` to approved `working_video` when present, otherwise `main_video`. Never delete or overwrite `main_video`.
 
 ## Browser Preview Proxy
 
@@ -17,7 +19,7 @@ Use when the source video is HEVC, high bitrate, or stutters in browser preview.
 
 ```bash
 ffmpeg -hide_banner -y \
-  -i "<main_video>" \
+  -i "<timeline_video>" \
   -vf "scale=1920:1080,fps=30,format=yuv420p" \
   -c:v libx264 -preset veryfast -crf 23 \
   -c:a aac -b:a 128k \
@@ -31,11 +33,11 @@ Use only when the rendered video is already at the requested final resolution. D
 ```bash
 ffmpeg -hide_banner -y \
   -i "<preview_render.mp4>" \
-  -i "<main_video>" \
+  -i "<timeline_video>" \
   -map 0:v:0 -map 1:a:0 \
   -vf "fps=30,format=yuv420p" \
   -c:v h264_videotoolbox -b:v 42000k -maxrate 52000k -bufsize 84000k \
-  -c:a aac -b:a 192k -shortest -movflags +faststart \
+  -c:a aac -b:a 192k -movflags +faststart \
   "<output_4k.mp4>"
 ```
 
@@ -44,17 +46,19 @@ ffmpeg -hide_banner -y \
 Prefer this when the source is already high-quality 4K, HEVC/Main10, or the user explicitly wants the original video preserved as the base.
 
 1. Render motion graphics as transparent overlay frames or a transparent MOV/WebM if supported.
-2. Use the original source video as input 0.
+2. Use the approved full-quality timeline video as input 0.
 3. Overlay graphics on top.
 4. Map original audio.
 
 Conceptual filter:
 
 ```text
-[main_video][overlay_rgba] overlay=0:0:format=auto
+[timeline_video][overlay_rgba] overlay=0:0:format=auto
 ```
 
-When the source is 4K HEVC/Main10, this is the preferred path: render only transparent graphics in the motion renderer, composite over the original source with ffmpeg, and map the original main audio.
+When the timeline video is 4K HEVC/Main10, this is the preferred path: render only transparent graphics in the motion renderer, composite over the approved full-quality timeline base with ffmpeg, and map its audio.
+
+Do not add `-shortest` as a convenience when full master-audio preservation matters. Verify the intended timeline duration and audio packets instead of silently truncating one stream.
 
 ## Render Log Rule
 

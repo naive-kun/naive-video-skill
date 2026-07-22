@@ -1,5 +1,20 @@
 # Changelog
 
+## 2.2.0
+
+- Changed the public package to expose exactly one root `SKILL.md`; twelve stage modules now live as internal workflow references so WorkBuddy-style recursive installers show one skill instead of many cards.
+- Replaced destructive install/upgrade behavior with timestamped backups, failure rollback, legacy-entry archiving, and recoverable uninstall archives.
+- Added validation and smoke coverage that reject nested skill manifests and recursive force-delete commands.
+- Added an optional beginner rough-cut route that delegates to an installed `video-use` skill, preserves originals, requires strategy approval, and records an approved `working_video` for downstream stages.
+- Added honest transcription onboarding: existing timing first, hosted word-level transcription recommended for precision rough cuts with possible cost disclosed, and local word-level transcription kept optional.
+- Added screenshot/demo onboarding with semantic, exact-second or spoken-sentence, and hybrid placement modes; exact user anchors are explicitly described as more precise.
+- Added GSAP runtime/plugin guidance plus `tools/gsap_check.py` for offline package version, license-header, and plugin-role inspection without vendoring a personal download folder.
+- Added a brand-neutral visual-quality contract for typography, caption line policy, component geometry, alignment, and public/private style separation.
+- Added deterministic `DESIGN.md` validation with `tools/design_check.py`.
+- Added seek-safe `focus-frame`, `seekable-type`, `split-reveal`, and `glass-notification` GSAP recipes based on reusable component behavior without copying a creator-specific visual style.
+- Added preview gates for real font weights, level text baselines, stable caption line counts, glass contrast, and deterministic seek behavior.
+- Added explicit anti-patterns for unrequested hand-drawn graphics, thin oversized loose type, skewed readable text, timer-driven animation, and brand leakage into public defaults.
+
 ## 2.1.0
 
 - Added an offline GSAP semantic motion recipe catalog with eleven reusable recipes and intent mappings.

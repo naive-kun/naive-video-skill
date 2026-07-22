@@ -143,7 +143,7 @@ def main() -> int:
     state_path = project / ".naive-video-state.json"
     if state_path.exists():
         print(f"Project already initialized: {state_path}")
-        print("Run naive-video-status or naive-video-doctor instead of initializing again.")
+        print("Use the root skill's status or doctor workflow instead of initializing again.")
         return 3
 
     for directory in (
@@ -191,6 +191,7 @@ def main() -> int:
         "project_name": name,
         "stage": stage,
         "main_video": str(video),
+        "working_video": None,
         "master_audio": "main_video",
         "source_probe": probe_video(video),
         "preview_required": True,

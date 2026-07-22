@@ -15,6 +15,14 @@ Record with `ffprobe`:
 
 Pass when the source exists, has a video stream, and the intended master audio stream is known.
 
+When rough cutting is requested, also pass the rough-cut handoff only when:
+
+- the keep/remove strategy was explicitly approved;
+- the original `main_video` still exists and was not overwritten;
+- the derived rough cut exists and is recorded as `working_video`;
+- `master_audio` points to `working_video`;
+- ambiguous cuts are listed instead of silently guessed.
+
 ## G1 Caption Gate
 
 Pass when:
@@ -23,7 +31,7 @@ Pass when:
 - Every cue has positive duration.
 - Cues are ordered and do not overlap unexpectedly.
 - Requested text-only replacements appear in SRT and CSV.
-- Source media was not modified.
+- Original source media was not modified. Captions use `working_video` when an approved rough cut exists.
 
 Run:
 
@@ -42,7 +50,23 @@ Pass when `DESIGN.md` states:
 - face, screenshot, UI, and subtitle safe zones
 - whether preview approval is required
 
-Every requested insert must also exist in `EDIT_PLAN.md` with start, end or duration, layout, audio behavior, and exit behavior.
+The typography and component contract must also state:
+
+- explicit font family plus real display and body weights
+- readable-text transform policy
+- caption maximum lines and wrap policy
+- primary and notification component families
+- maximum simultaneous components
+- paused or seekable GSAP timeline driver
+- font measurement after fonts load
+
+Run:
+
+```bash
+python3 tools/design_check.py <project_dir>/DESIGN.md
+```
+
+Every requested insert must also exist in `EDIT_PLAN.md` with placement mode, original second or spoken-sentence anchor, resolved start, end or duration, layout, audio behavior, entrance/exit behavior, caption evidence, and protected regions.
 
 When semantic motion is used, `MOTION_PLAN.json` must pass:
 
@@ -65,8 +89,15 @@ Pass when:
 - preview uses a proxy only as a preview asset
 - every planned semantic node is implemented with its declared recipe or documented fallback
 - `energetic` does not consist only of subtitles and a recurring corner card, and meets the duration-aware coverage check
+- computed font family and weight match `DESIGN.md`
+- captions obey the declared line policy at representative states
+- readable text remains level and baseline-aligned
+- focus, typing, and split effects reproduce the same state after seeking
+- glass surfaces preserve contrast and do not weaken evidence readability
 
 When the renderer supports lint or inspect commands, run them at all insert boundaries and transitions.
+
+Timer-driven, random, viewport-triggered, or scroll-triggered state fails G3 for a video-time composition.
 
 ## G4 Approval Gate
 

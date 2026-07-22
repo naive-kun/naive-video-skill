@@ -1,8 +1,3 @@
----
-name: naive-video-status
-description: Report the current stage, render progress, verified outputs, blockers, and exact next action for a Naive Video Skill project. Use when the user asks where the task is, how many frames are rendered, whether it is stuck, what remains, or how to continue after an interruption.
----
-
 # Naive Video Status
 
 Provide a factual, short status update without changing project files.

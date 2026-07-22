@@ -21,6 +21,36 @@
 先给我官方预览，确认后再导出。
 ```
 
+## Raw Footage With Optional Rough Cut
+
+```text
+用 $talking-head-video-pipeline 处理这批原片：<paths>
+我不会粗剪。请先告诉我可以删哪些口误、重复和明显停顿，等我确认策略后再执行。
+如果要转写，请说明云端词级转写的费用可能性和本地词级转写的差别，不要替我强制选择。
+```
+
+## Semantic Asset Placement
+
+```text
+这些截图和录屏需要放进视频：<paths>
+我不会看时间轴，请根据字幕语义决定每个素材的飞入、停留和飞出，并把依据写进 EDIT_PLAN.md。
+```
+
+## Exact Asset Placement
+
+```text
+说到“这里就是最终效果”时插入 <image-path>，停留 2 秒后飞出。
+72.16 秒左右同时插入 <image-a> 和 <image-b>。
+请用字幕轴解析准确时间；如果原话重复出现，先问我是哪一次。
+```
+
+## Hybrid Asset Placement
+
+```text
+关键演示视频固定在 28.09 秒全屏播放，其他截图你按口播语义安排。
+告诉我：我指定的时间会更精准，自动安排的部分会先在官方预览里让我确认。
+```
+
 ## Captions Only
 
 ```text
@@ -70,6 +100,23 @@ CSV：<path>
 动效密度 energetic，但不能遮挡人脸、字幕或截图；先检查 MOTION_PLAN.json，再做官方预览。
 ```
 
+## Offline GSAP Package
+
+```text
+我已经下载了官方 GSAP 文件夹：<gsap-directory>
+先用 gsap_check.py 检查版本和可用插件，不要把整个下载目录复制进公开 Skill。
+这个视频只挑真正有语义价值的插件，并给每个插件动效准备 core fallback。
+```
+
+## Brand-Neutral Visual Quality
+
+```text
+先为这个项目写清字体、真实字重、字幕最多一行还是两行、换行规则和组件类型。
+正文和按钮文字必须水平对齐，不要细体大字、手绘感箭头或歪斜文字。
+需要状态提醒时可以用玻璃通知；Focus、Type 和 Split 动效必须由可 seek 的 GSAP 时间轴驱动。
+先运行 design_check.py，再做官方预览。
+```
+
 ## Combined Beginner Setup
 
 ```text
@@ -81,20 +128,20 @@ CSV：<path>
 ## Resume
 
 ```text
-用 $naive-video-status 看一下这个视频项目做到哪一步，继续未完成的部分。
+用 $talking-head-video-pipeline 看一下这个视频项目做到哪一步，继续未完成的部分。
 ```
 
 ## Diagnose
 
 ```text
-用 $naive-video-doctor 只做体检，不要删文件，也不要重跑渲染。
+用 $talking-head-video-pipeline 只做体检，不要改文件，也不要重跑渲染。
 ```
 
 ## Explicit Learning
 
 ```text
 这个圆形人物画中画是正确的。以后我的演示视频都用圆形，不要用矩形。
-请用 $naive-video-learn 记成长期风格规则。
+请用 $talking-head-video-pipeline 记成长期风格规则。
 ```
 
 ## Direct Export
@@ -107,6 +154,6 @@ CSV：<path>
 ## Delivery Retrospective
 
 ```text
-用 $naive-video-retro 复盘这条成片。
+用 $talking-head-video-pipeline 复盘这条成片。
 先区分具体故障、环境问题和我的长期风格偏好；只有我确认后，才把规则带到下一条视频。
 ```
