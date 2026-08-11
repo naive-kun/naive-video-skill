@@ -1,6 +1,6 @@
 # Naive Video Skill
 
-给 Codex 使用的开源口播视频成片导师工作流：原片可以先走可选粗剪，也可以从现成粗剪或字幕轴开始，再完成素材插入、风格选择、HyperFrames + GSAP 预览和最终成片。
+给 Codex 使用的开源口播视频成片导师工作流：原片可以先走可选粗剪，也可以从现成粗剪或字幕轴开始，再完成素材插入、风格选择、可选 ShotCraft 镜头参考、HyperFrames + GSAP 预览和最终成片。
 
 它不只是一份提示词。它包含首次初始化、可选 `video-use` 粗剪、阶段路由、项目状态、体检、迁移、质量闸门和显式反馈学习，目标是像导师一样一次问一个问题，让完全没有剪辑基础的人也能一步步拿到可播放成片。
 
@@ -47,6 +47,7 @@ Skill 会检查环境、读取视频参数、询问最少量的风格问题，�
   -> 口播逻辑组与关键词时间
   -> 截图 / 录屏插入方式
   -> 风格与插入时间表
+  -> 可选镜头参考
   -> 静态关键帧检查
   -> 官方预览链接
   -> 你确认
@@ -92,6 +93,7 @@ Skill 会检查环境、读取视频参数、询问最少量的风格问题，�
 说到“这里就是最终效果”时插入 <image-path>，停留 2 秒
 参考这张截图设计视频风格：<image-path>
 根据字幕语义自动匹配 GSAP 动效，动效密度 balanced
+启用 ShotCraft 镜头推荐，最多 3 个；只借镜头语言，截图和演示段禁用
 进度到哪了
 体检这个视频项目
 这个风格以后都这样，记住
@@ -213,6 +215,55 @@ python3 tools/gsap_check.py <gsap-directory>
 
 本仓库不会直接打包个人下载目录里的 GSAP 文件。GSAP 文件保留自己的版权和标准许可证，MIT 只覆盖本仓库自行编写的内容。
 
+## 可选 ShotCraft 镜头参考
+
+ShotCraft 不是第二套剪辑流程，也不是必装渲染器。它只为少量高价值语义节点提供镜头语言参考；字幕、主音频时钟、安全区、HyperFrames 官方预览和最终导出仍由本 Skill 管理。
+
+新项目默认使用第一种，新手也可以随时切换：
+
+- `automatic`（推荐）：根据字幕语义自动选择少量镜头，用本地 HyperFrames + GSAP 重做，不需要安装 ShotCraft 或 Remotion；`balanced` 最多 3 个。
+- `gallery`：你在 ShotCraft 里挑好卡片名，再交给 Skill 适配。
+- `skip`：只使用基础 GSAP 语义配方，不加精选镜头层。
+
+即使本机没装 ShotCraft，离线映射仍可给出 `reference-only` 建议，原生动效不会中断：
+
+```bash
+python3 tools/shotcraft_catalog.py --semantic list --density balanced --json
+```
+
+初始化后，自动模式会在原生 `MOTION_PLAN.json` 通过基础检查后运行：
+
+```bash
+python3 tools/shotcraft_default_plan.py <project-dir>/MOTION_PLAN.json --in-place
+python3 tools/motion_plan_check.py <project-dir>/MOTION_PLAN.json
+```
+
+它只匹配“字幕语义 + 原生 recipe_id”都一致的节点，会避开截图、演示、人脸和字幕安全区；数量上限不是完成指标，找不到合适节点时可以一个都不加。旧项目已有设计不会被升级过程自动改写。
+
+只有你明确想浏览或核验上游卡片时，才需要自行安装外部仓库：
+
+```bash
+git clone --depth 1 https://github.com/Vincentwei1021/video-shotcraft.git \
+  ~/.naive-video/providers/video-shotcraft
+```
+
+Skill 不会替你静默执行这条命令。默认把参考改写成 `gsap-adapted` 或 `hyperframes-custom`，预览和导出不依赖上游仓库。
+
+复杂 `remotion-subclip` 只有明确同意后才使用。Skill 内置的是安装管理工具，不是打包好的 `node_modules`：
+
+```bash
+# 只检查或看计划：不会写文件、不会联网
+python3 tools/remotion_runtime.py --project <project-dir> --check
+python3 tools/remotion_runtime.py --project <project-dir> --plan
+
+# 用户明确同意下载和许可证后，才执行项目内安装
+python3 tools/remotion_runtime.py --project <project-dir> --install --yes
+```
+
+运行时只写入该视频项目的 `runtime/remotion/`，不会污染全局 Node 环境。Remotion 子片段必须预渲染静音、保留原生 fallback、不能改变主音频时间轴；商业使用前还要单独查看 [Remotion License](https://www.remotion.dev/license)。
+
+适配层只包含自行编写的语义映射和上游链接，不复制 ShotCraft 代码、音频、预览或模板。ShotCraft 本身使用 Apache-2.0；本仓库自有内容继续使用 MIT。
+
 ## 视觉质量与通用组件
 
 公开版不会内置作者个人的颜色、字体或固定卡片系统。每个项目必须在 `DESIGN.md` 里明确字体、真实字重、字幕最大行数、换行策略、文本基线、组件类型和最长标签适配，再通过离线检查：
@@ -309,7 +360,7 @@ CI 会执行同样的无密钥检查。不要提交 `.env`、真实客户素材�
 ```text
 naive-video-skill/
 ├── SKILL.md                 # 总路由与硬规则
-├── references/              # 状态、质量、视觉规则，以及 12 个内部阶段工作流
+├── references/              # 状态、质量、视觉规则、精选镜头包及内部工作流
 ├── templates/               # 项目初始化模板
 ├── migrations/              # 状态 schema 迁移
 ├── tools/                   # 无第三方依赖的检查与初始化工具
@@ -322,7 +373,7 @@ naive-video-skill/
 
 ## English Summary
 
-Naive Video Skill is a beginner-first, stateful Codex workflow for talking-head video production. It routes optional non-destructive rough cutting, captions, asset placement, motion preview, export, revision, diagnosis, status, explicit-feedback learning, and state migration while preserving originals, evidence readability, and privacy.
+Naive Video Skill is a beginner-first, stateful Codex workflow for talking-head video production. It routes optional non-destructive rough cutting, captions, asset placement, semantic motion, optional ShotCraft shot references, preview, export, revision, diagnosis, explicit-feedback learning, and state migration while preserving originals, evidence readability, and privacy.
 
 ## License
 

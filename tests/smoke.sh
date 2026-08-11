@@ -22,6 +22,8 @@ test -f "$TMP_DIR/project/CONTENT_LOGIC.json"
 test -f "$TMP_DIR/project/VIDEO_LESSONS.md"
 test -f "$TMP_DIR/project/VIDEO_RETRO.md"
 test -f "$TMP_DIR/project/qa/KEYFRAME_REVIEW.md"
+grep -q "Shot references: automatic" "$TMP_DIR/project/DESIGN.md"
+grep -q '"shot_reference_mode": "automatic"' "$TMP_DIR/project/.naive-video-state.json"
 
 cat > "$TMP_DIR/valid-content-logic.json" <<'EOF'
 {
@@ -133,6 +135,22 @@ if python3 "$ROOT_DIR/tools/gsap_check.py" "$TMP_DIR/gsap-mixed"; then
   exit 1
 fi
 
+python3 "$ROOT_DIR/tools/shotcraft_catalog.py" \
+  --semantic list --density balanced --json > "$TMP_DIR/shotcraft-reference.json"
+grep -q '"card": "list-reveal"' "$TMP_DIR/shotcraft-reference.json"
+grep -q '"availability": "reference-only"' "$TMP_DIR/shotcraft-reference.json"
+python3 "$ROOT_DIR/tools/shotcraft_catalog.py" \
+  --defaults --density balanced --json > "$TMP_DIR/shotcraft-defaults.json"
+grep -q '"pack_id": "beginner-quality"' "$TMP_DIR/shotcraft-defaults.json"
+grep -q '"remotion_required": false' "$TMP_DIR/shotcraft-defaults.json"
+mkdir -p "$TMP_DIR/video-shotcraft/gallery/api"
+cp "$ROOT_DIR/tests/fixtures/shotcraft-mini-library.json" \
+  "$TMP_DIR/video-shotcraft/gallery/api/library.json"
+python3 "$ROOT_DIR/tools/shotcraft_catalog.py" \
+  --root "$TMP_DIR/video-shotcraft" --card list-reveal --require-installed --json \
+  > "$TMP_DIR/shotcraft-installed.json"
+grep -q '"availability": "installed"' "$TMP_DIR/shotcraft-installed.json"
+
 HOME="$TMP_DIR/profile-home" python3 "$ROOT_DIR/tools/profile.py" init
 HOME="$TMP_DIR/profile-home" python3 "$ROOT_DIR/tools/profile.py" add-rule \
   --stage preview \
@@ -156,7 +174,7 @@ cat > "$TMP_DIR/valid-motion-plan.json" <<'EOF'
   "content_logic_path": "CONTENT_LOGIC.json",
   "nodes": [
     {"node_id":"m1","recipe_id":"focus-frame","start":0.2,"end":0.9,"semantic_tag":"question","logic_group_id":"logic-001","logic_beat_id":"logic-001-input","semantic_evidence":{"start":0.0,"end":1.0,"text":"为什么会这样？","intent":"question"},"target":"question","region":"top-safe","visual_role":"focus-frame","covers_protected_regions":false,"plugin":null,"fallback":"core DOM corners"},
-    {"node_id":"m2","recipe_id":"counter-roll","start":2.0,"end":3.0,"semantic_tag":"number","logic_group_id":"logic-002","logic_beat_id":"logic-002-result","semantic_evidence":{"start":1.9,"end":3.1,"text":"总共 12 个步骤","intent":"number"},"target":"12","region":"left-safe","visual_role":"metric-counter","covers_protected_regions":false,"plugin":null,"fallback":"numeric object tween"},
+    {"node_id":"m2","recipe_id":"counter-roll","start":2.0,"end":3.0,"semantic_tag":"number","logic_group_id":"logic-002","logic_beat_id":"logic-002-result","semantic_evidence":{"start":1.9,"end":3.1,"text":"总共 12 个步骤","intent":"number"},"target":"12","region":"left-safe","visual_role":"metric-counter","covers_protected_regions":false,"plugin":null,"fallback":"numeric object tween","reference":{"provider":"video-shotcraft","card":"counter-confetti","implementation":"gsap-adapted","provider_required_at_runtime":false}},
     {"node_id":"m3","recipe_id":"split-reveal","start":4.0,"end":5.5,"semantic_tag":"list","logic_group_id":"logic-003","logic_beat_id":"logic-003-support","semantic_evidence":{"start":3.9,"end":5.6,"text":"第一步检查，第二步确认","intent":"list"},"target":"steps","region":"right-safe","visual_role":"split-steps","covers_protected_regions":false,"plugin":"SplitText","fallback":"word spans with core stagger"},
     {"node_id":"m4","recipe_id":"compare-split","start":6.5,"end":8.0,"semantic_tag":"compare","logic_group_id":"logic-004","logic_beat_id":"logic-004-relation","semantic_evidence":{"start":6.4,"end":8.1,"text":"之前很慢，之后更快","intent":"compare"},"target":"comparison","region":"center-safe","visual_role":"split-comparison","covers_protected_regions":false,"plugin":null,"fallback":"overflow wrappers"},
     {"node_id":"m5","recipe_id":"glass-notification","start":9.5,"end":10.2,"semantic_tag":"warning","logic_group_id":"logic-005","logic_beat_id":"logic-005-warning","semantic_evidence":{"start":9.4,"end":10.3,"text":"注意这个风险","intent":"warning"},"target":"risk","region":"top-safe","visual_role":"glass-warning","covers_protected_regions":false,"plugin":null,"fallback":"translucent DOM surface"},
@@ -165,6 +183,44 @@ cat > "$TMP_DIR/valid-motion-plan.json" <<'EOF'
 }
 EOF
 python3 "$ROOT_DIR/tools/motion_plan_check.py" "$TMP_DIR/valid-motion-plan.json"
+
+python3 - "$TMP_DIR/valid-motion-plan.json" "$TMP_DIR/automatic-motion-plan.json" <<'PY'
+import json
+import sys
+
+source, target = sys.argv[1:]
+plan = json.load(open(source, encoding="utf-8"))
+for node in plan["nodes"]:
+    node["reference"] = None
+plan["nodes"][0]["end"] = 1.8
+json.dump(plan, open(target, "w", encoding="utf-8"))
+PY
+python3 "$ROOT_DIR/tools/shotcraft_default_plan.py" \
+  "$TMP_DIR/automatic-motion-plan.json" --in-place --json-summary \
+  > "$TMP_DIR/automatic-motion-summary.json"
+grep -q '"changed": 3' "$TMP_DIR/automatic-motion-summary.json"
+grep -q '"selection_mode": "automatic-default-pack"' "$TMP_DIR/automatic-motion-plan.json"
+grep -q '"card": "spotlight-hero-card"' "$TMP_DIR/automatic-motion-plan.json"
+grep -q '"card": "list-reveal"' "$TMP_DIR/automatic-motion-plan.json"
+grep -q '"card": "counter-confetti"' "$TMP_DIR/automatic-motion-plan.json"
+python3 "$ROOT_DIR/tools/motion_plan_check.py" "$TMP_DIR/automatic-motion-plan.json"
+
+python3 "$ROOT_DIR/tools/remotion_runtime.py" \
+  --project "$TMP_DIR/project" --plan --json > "$TMP_DIR/remotion-plan.json"
+grep -q '"action": "plan-only"' "$TMP_DIR/remotion-plan.json"
+grep -q '"will_write": false' "$TMP_DIR/remotion-plan.json"
+test ! -e "$TMP_DIR/project/runtime/remotion"
+if python3 "$ROOT_DIR/tools/remotion_runtime.py" \
+  --project "$TMP_DIR/project" --check --json > "$TMP_DIR/remotion-check.json"; then
+  echo "Expected an unconfigured Remotion runtime" >&2
+  exit 1
+fi
+if python3 "$ROOT_DIR/tools/remotion_runtime.py" \
+  --project "$TMP_DIR/project" --install > "$TMP_DIR/remotion-install.log" 2>&1; then
+  echo "Expected explicit Remotion confirmation failure" >&2
+  exit 1
+fi
+test ! -e "$TMP_DIR/project/runtime/remotion"
 
 python3 - "$TMP_DIR/valid-motion-plan.json" "$TMP_DIR/invalid-motion-plan.json" <<'PY'
 import json
@@ -194,6 +250,48 @@ json.dump(plan, open(target, "w", encoding="utf-8"))
 PY
 if python3 "$ROOT_DIR/tools/motion_plan_check.py" "$TMP_DIR/unsafe-motion-plan.json"; then
   echo "Expected protected-region failure" >&2
+  exit 1
+fi
+
+python3 - "$TMP_DIR/valid-motion-plan.json" "$TMP_DIR/unknown-reference-plan.json" <<'PY'
+import json
+import sys
+
+source, target = sys.argv[1:]
+plan = json.load(open(source, encoding="utf-8"))
+plan["nodes"][1]["reference"]["card"] = "unknown-card"
+json.dump(plan, open(target, "w", encoding="utf-8"))
+PY
+if python3 "$ROOT_DIR/tools/motion_plan_check.py" "$TMP_DIR/unknown-reference-plan.json"; then
+  echo "Expected unknown ShotCraft reference failure" >&2
+  exit 1
+fi
+
+python3 - "$TMP_DIR/valid-motion-plan.json" "$TMP_DIR/missing-reference-fallback-plan.json" <<'PY'
+import json
+import sys
+
+source, target = sys.argv[1:]
+plan = json.load(open(source, encoding="utf-8"))
+plan["nodes"][1]["fallback"] = ""
+json.dump(plan, open(target, "w", encoding="utf-8"))
+PY
+if python3 "$ROOT_DIR/tools/motion_plan_check.py" "$TMP_DIR/missing-reference-fallback-plan.json"; then
+  echo "Expected missing ShotCraft fallback failure" >&2
+  exit 1
+fi
+
+python3 - "$TMP_DIR/valid-motion-plan.json" "$TMP_DIR/evidence-overlap-plan.json" <<'PY'
+import json
+import sys
+
+source, target = sys.argv[1:]
+plan = json.load(open(source, encoding="utf-8"))
+plan["evidence_intervals"] = [{"start": 2.2, "end": 2.8, "kind": "screenshot"}]
+json.dump(plan, open(target, "w", encoding="utf-8"))
+PY
+if python3 "$ROOT_DIR/tools/motion_plan_check.py" "$TMP_DIR/evidence-overlap-plan.json"; then
+  echo "Expected ShotCraft evidence-overlap failure" >&2
   exit 1
 fi
 

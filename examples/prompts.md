@@ -110,6 +110,30 @@ CSV：<path>
 动效密度 energetic，但不能遮挡人脸、字幕或截图；先检查 MOTION_PLAN.json，再做官方预览。
 ```
 
+## Automatic ShotCraft References
+
+```text
+使用新项目默认的 ShotCraft 精选镜头包，动效密度 balanced，最多选 3 个真正有价值的语义节点。
+只借镜头语言，不复制品牌、文案或完整 UI；截图、演示和产品证据区间禁用。
+优先用 HyperFrames + GSAP 适配，本机没装 ShotCraft 也要走原生 fallback，不要自动安装。
+先检查 MOTION_PLAN.json，再给我官方预览。
+```
+
+## Optional Complex Remotion Shot
+
+```text
+这个复杂镜头如果原生 GSAP 很难做好，先告诉我为什么需要 Remotion、会下载什么、装到哪里，以及许可证和渲染成本。
+先运行 remotion_runtime.py --plan，不要安装。等我明确确认后，才允许项目内安装；子片段必须静音并保留原生 fallback。
+```
+
+## Selected ShotCraft Cards
+
+```text
+我想参考 list-reveal、spotlight-hero-card 和 counter-confetti。
+请先检查它们是否与当前字幕语义匹配，只保留合适的；配色沿用当前 DESIGN.md。
+不要直接复制上游模板，优先 gsap-adapted 或 hyperframes-custom，并保留主音频时钟。
+```
+
 ## Offline GSAP Package
 
 ```text
@@ -132,7 +156,7 @@ CSV：<path>
 ```text
 用 $talking-head-video-pipeline 初始化这个口播项目：<video-path>
 我没有剪辑经验。请提醒我可以补一张喜欢的参考截图；如果我不提供，就用安全默认风格。
-设计完成后按字幕语义匹配 balanced GSAP 动效，先给官方预览，确认后再导出。
+设计完成后按字幕语义匹配 balanced GSAP 动效，并自动使用不依赖 ShotCraft/Remotion 的精选镜头包；先给官方预览，确认后再导出。
 ```
 
 ## Staged Keyframe Review

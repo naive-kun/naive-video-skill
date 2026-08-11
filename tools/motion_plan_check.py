@@ -47,6 +47,8 @@ TEXT_CUES = {
 
 GENERIC_VISUAL_ROLES = {"caption", "subtitle", "card", "corner-card"}
 VALID_DENSITIES = {"restrained", "balanced", "energetic"}
+REFERENCE_PROVIDER = "video-shotcraft"
+REFERENCE_IMPLEMENTATIONS = {"gsap-adapted", "hyperframes-custom", "remotion-subclip"}
 
 
 def energetic_minimum(duration: float) -> int:
@@ -68,6 +70,26 @@ def load_plan(path: Path) -> dict[str, Any]:
     return data
 
 
+def load_reference_mapping() -> dict[str, dict[str, Any]]:
+    path = Path(__file__).resolve().parents[1] / "references" / "shotcraft-mapping.json"
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except FileNotFoundError as exc:
+        raise ValueError(f"ShotCraft mapping not found: {path}") from exc
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"invalid ShotCraft mapping at line {exc.lineno}: {exc.msg}") from exc
+    if not isinstance(data, dict) or data.get("provider") != REFERENCE_PROVIDER:
+        raise ValueError("ShotCraft mapping has an invalid provider")
+    cards = data.get("cards")
+    if not isinstance(cards, list):
+        raise ValueError("ShotCraft mapping cards must be an array")
+    return {
+        card["card"]: card
+        for card in cards
+        if isinstance(card, dict) and isinstance(card.get("card"), str)
+    }
+
+
 def number(value: Any) -> float | None:
     if isinstance(value, bool) or not isinstance(value, (int, float)):
         return None
@@ -83,6 +105,12 @@ def validate(plan: dict[str, Any]) -> tuple[list[str], list[str]]:
     protected = set(plan.get("protected_regions", []))
     content_logic_path = plan.get("content_logic_path")
 
+    try:
+        reference_mapping = load_reference_mapping()
+    except ValueError as exc:
+        errors.append(str(exc))
+        reference_mapping = {}
+
     if duration is None or duration <= 0:
         errors.append("timeline_duration must be a positive number")
         duration = 0.0
@@ -94,6 +122,30 @@ def validate(plan: dict[str, Any]) -> tuple[list[str], list[str]]:
     if not isinstance(plan.get("protected_regions", []), list):
         errors.append("protected_regions must be an array")
         protected = set()
+
+    evidence_intervals: list[tuple[float, float, str]] = []
+    raw_evidence_intervals = plan.get("evidence_intervals", [])
+    if not isinstance(raw_evidence_intervals, list):
+        errors.append("evidence_intervals must be an array")
+    else:
+        for index, interval in enumerate(raw_evidence_intervals, start=1):
+            prefix = f"evidence_interval[{index}]"
+            if not isinstance(interval, dict):
+                errors.append(f"{prefix} must be an object")
+                continue
+            interval_start = number(interval.get("start"))
+            interval_end = number(interval.get("end"))
+            kind = interval.get("kind", "evidence")
+            if interval_start is None or interval_end is None or interval_start < 0 or interval_end <= interval_start:
+                errors.append(f"{prefix} needs a valid start/end")
+                continue
+            if duration and interval_end > duration + 0.001:
+                errors.append(f"{prefix} exceeds timeline duration {duration}")
+                continue
+            if not isinstance(kind, str) or not kind.strip():
+                errors.append(f"{prefix} kind must be a non-empty string")
+                continue
+            evidence_intervals.append((interval_start, interval_end, kind.strip()))
 
     node_ids: set[str] = set()
     visual_roles: set[str] = set()
@@ -175,6 +227,88 @@ def validate(plan: dict[str, Any]) -> tuple[list[str], list[str]]:
         fallback = node.get("fallback")
         if plugin and (not isinstance(fallback, str) or not fallback.strip()):
             errors.append(f"{prefix} names plugin {plugin!r} without a no-plugin fallback")
+
+        reference = node.get("reference")
+        if reference is not None:
+            if not isinstance(reference, dict):
+                errors.append(f"{prefix} reference must be an object or null")
+                continue
+
+            if not isinstance(fallback, str) or not fallback.strip():
+                errors.append(f"{prefix} ShotCraft reference requires a non-empty native fallback")
+
+            provider = reference.get("provider")
+            card_name = reference.get("card")
+            implementation = reference.get("implementation")
+            runtime_required = reference.get("provider_required_at_runtime")
+            if provider != REFERENCE_PROVIDER:
+                errors.append(f"{prefix} reference.provider must be {REFERENCE_PROVIDER!r}")
+            if not isinstance(card_name, str) or not card_name.strip():
+                errors.append(f"{prefix} reference.card must be a non-empty string")
+                mapped_card = None
+            else:
+                mapped_card = reference_mapping.get(card_name)
+                if mapped_card is None:
+                    errors.append(f"{prefix} references unknown ShotCraft card {card_name!r}")
+            if implementation not in REFERENCE_IMPLEMENTATIONS:
+                errors.append(
+                    f"{prefix} reference.implementation must be gsap-adapted, "
+                    "hyperframes-custom, or remotion-subclip"
+                )
+            if not isinstance(runtime_required, bool):
+                errors.append(f"{prefix} reference.provider_required_at_runtime must be boolean")
+            elif runtime_required:
+                errors.append(f"{prefix} must remain previewable without the ShotCraft provider at runtime")
+
+            if mapped_card is not None:
+                if recipe_id not in mapped_card.get("native_recipe_ids", []):
+                    errors.append(
+                        f"{prefix} ShotCraft card {card_name!r} is incompatible with recipe {recipe_id!r}"
+                    )
+                if semantic_tag not in mapped_card.get("semantic_tags", []):
+                    errors.append(
+                        f"{prefix} ShotCraft card {card_name!r} is incompatible with semantic tag {semantic_tag!r}"
+                    )
+                if density not in mapped_card.get("densities", []):
+                    errors.append(
+                        f"{prefix} ShotCraft card {card_name!r} is not allowed for motion density {density!r}"
+                    )
+                recommended_duration = mapped_card.get("recommended_duration")
+                if (
+                    start is not None
+                    and end is not None
+                    and isinstance(recommended_duration, list)
+                    and len(recommended_duration) == 2
+                ):
+                    node_duration = end - start
+                    if node_duration < recommended_duration[0] or node_duration > recommended_duration[1]:
+                        warnings.append(
+                            f"{prefix} duration {node_duration:.2f}s is outside the mapped ShotCraft "
+                            f"range {recommended_duration[0]}-{recommended_duration[1]}s"
+                        )
+                default_implementation = mapped_card.get("implementation")
+                if implementation != default_implementation:
+                    if implementation == "remotion-subclip" and reference.get("explicit_approval") is True:
+                        warnings.append(
+                            f"{prefix} uses approved remotion-subclip; pre-render it muted and keep the native fallback"
+                        )
+                    else:
+                        errors.append(
+                            f"{prefix} implementation {implementation!r} differs from mapped default "
+                            f"{default_implementation!r}; remotion-subclip requires explicit_approval=true"
+                        )
+
+                if mapped_card.get("allow_during_evidence") is False:
+                    if node.get("evidence_interval") is True:
+                        errors.append(f"{prefix} ShotCraft reference is not allowed during evidence")
+                    if start is not None and end is not None:
+                        for evidence_start, evidence_end, kind in evidence_intervals:
+                            if end > evidence_start and start < evidence_end:
+                                errors.append(
+                                    f"{prefix} ShotCraft reference overlaps protected {kind} evidence "
+                                    f"at {evidence_start}-{evidence_end}"
+                                )
+                                break
 
     if density == "energetic" and duration:
         minimum = energetic_minimum(duration)

@@ -1,0 +1,99 @@
+{
+  "schema_version": "1.0",
+  "provider": "video-shotcraft",
+  "provider_url": "https://github.com/Vincentwei1021/video-shotcraft",
+  "default_pack": {
+    "pack_id": "beginner-quality",
+    "enabled_for_new_projects": true,
+    "selection_mode": "semantic",
+    "provider_required_at_runtime": false,
+    "remotion_required": false,
+    "max_references_by_density": {
+      "restrained": 1,
+      "balanced": 3,
+      "energetic": 4
+    },
+    "cards": [
+      "spotlight-hero-card",
+      "list-reveal",
+      "counter-confetti",
+      "type-and-filter",
+      "timeline-travel",
+      "document-typewriter-reveal"
+    ]
+  },
+  "cards": [
+    {
+      "card": "list-reveal",
+      "category": "ui-entrance",
+      "native_recipe_ids": ["stagger-list", "split-reveal"],
+      "semantic_tags": ["list", "process"],
+      "recommended_duration": [1.2, 2.8],
+      "implementation": "gsap-adapted",
+      "densities": ["restrained", "balanced", "energetic"],
+      "allow_during_evidence": false,
+      "priority": 10,
+      "source_url": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/ui-entrance/list-reveal.md"
+    },
+    {
+      "card": "counter-confetti",
+      "category": "data-highlight",
+      "native_recipe_ids": ["counter-roll", "impact-pop"],
+      "semantic_tags": ["number", "result"],
+      "recommended_duration": [1.0, 2.2],
+      "implementation": "gsap-adapted",
+      "densities": ["balanced", "energetic"],
+      "allow_during_evidence": false,
+      "priority": 20,
+      "source_url": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/data/counter-confetti.md"
+    },
+    {
+      "card": "spotlight-hero-card",
+      "category": "focus",
+      "native_recipe_ids": ["spotlight-mask", "focus-frame"],
+      "semantic_tags": ["question", "verify", "causality"],
+      "recommended_duration": [1.4, 3.2],
+      "implementation": "hyperframes-custom",
+      "densities": ["balanced", "energetic"],
+      "allow_during_evidence": false,
+      "priority": 30,
+      "source_url": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/opening/spotlight-hero-card.md"
+    },
+    {
+      "card": "timeline-travel",
+      "category": "process",
+      "native_recipe_ids": ["timeline-lock", "connector-flow"],
+      "semantic_tags": ["timeline", "process", "task-transfer"],
+      "recommended_duration": [1.8, 4.0],
+      "implementation": "hyperframes-custom",
+      "densities": ["restrained", "balanced", "energetic"],
+      "allow_during_evidence": false,
+      "priority": 40,
+      "source_url": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/data/timeline-travel.md"
+    },
+    {
+      "card": "type-and-filter",
+      "category": "verification",
+      "native_recipe_ids": ["scan-verify"],
+      "semantic_tags": ["verify", "process", "confirmation"],
+      "recommended_duration": [1.4, 3.0],
+      "implementation": "gsap-adapted",
+      "densities": ["restrained", "balanced", "energetic"],
+      "allow_during_evidence": false,
+      "priority": 50,
+      "source_url": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/interaction/type-and-filter.md"
+    },
+    {
+      "card": "document-typewriter-reveal",
+      "category": "document",
+      "native_recipe_ids": ["seekable-type"],
+      "semantic_tags": ["process", "result"],
+      "recommended_duration": [1.5, 3.5],
+      "implementation": "gsap-adapted",
+      "densities": ["balanced", "energetic"],
+      "allow_during_evidence": false,
+      "priority": 60,
+      "source_url": "https://github.com/Vincentwei1021/video-shotcraft/blob/main/references/shots/typography/document-typewriter-reveal.md"
+    }
+  ]
+}

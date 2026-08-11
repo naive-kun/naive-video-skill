@@ -1,0 +1,10 @@
+{
+  "shots": [
+    {"slug": "list-reveal"},
+    {"slug": "counter-confetti"},
+    {"slug": "spotlight-hero-card"},
+    {"slug": "timeline-travel"},
+    {"slug": "type-and-filter"},
+    {"slug": "document-typewriter-reveal"}
+  ]
+}

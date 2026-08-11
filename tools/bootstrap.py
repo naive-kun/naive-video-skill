@@ -102,6 +102,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--preset", choices=("clean", "dark", "sticker", "minimal"), default="clean")
     parser.add_argument("--accent", default="#2F7DF4")
     parser.add_argument("--aspect", default="preserve-source")
+    parser.add_argument(
+        "--shot-references",
+        choices=("automatic", "gallery-selected", "skip"),
+        default="automatic",
+        help="Use the curated native ShotCraft-inspired pack or skip it",
+    )
     parser.add_argument("--project-name")
     parser.add_argument(
         "--profile",
@@ -160,6 +166,9 @@ def main() -> int:
     accent = str(profile_style.get("accent_color", args.accent))
     aspect = str(profile_style.get("aspect_ratio", args.aspect))
     motion_density = str(profile_style.get("motion_density", "balanced"))
+    shot_reference_mode = str(
+        profile_style.get("shot_reference_mode", args.shot_references)
+    )
     replacements = {
         "<project_name>": name,
         "<main_video>": str(video),
@@ -167,6 +176,11 @@ def main() -> int:
         "preserve source": aspect,
         "Preset: clean": f"Preset: {preset}",
         "Motion density: balanced": f"Motion density: {motion_density}",
+        "Shot references: automatic (curated native GSAP pack; no provider required)": (
+            "Shot references: automatic (curated native GSAP pack; no provider required)"
+            if shot_reference_mode == "automatic"
+            else f"Shot references: {shot_reference_mode}"
+        ),
     }
     created = []
     template_map = {
@@ -204,6 +218,7 @@ def main() -> int:
             "accent_color": accent,
             "aspect_ratio": aspect,
             "motion_density": motion_density,
+            "shot_reference_mode": shot_reference_mode,
             "safe_zones": ["face", "existing-captions", "screenshots", "product-ui"],
         },
         "profile": {
