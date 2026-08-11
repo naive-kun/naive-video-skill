@@ -11,6 +11,8 @@
 ## Design Gate
 
 - Status: pending
+- Content logic and timing precision: pending
+- Logic-group accumulation and exit: pending
 - Font family and real weight: pending
 - Caption line policy: pending
 - Text baseline and transform: pending
@@ -19,6 +21,7 @@
 ## Preview Gate
 
 - Status: pending
+- Static keyframe review: pending
 - Seek-safe focus/type/split state: pending
 - Glass contrast and evidence safety: pending
 

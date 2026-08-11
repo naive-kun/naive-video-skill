@@ -18,8 +18,50 @@ HOME="$TMP_DIR/initial-home" python3 "$ROOT_DIR/tools/bootstrap.py" \
 test -f "$TMP_DIR/project/.naive-video-state.json"
 test -f "$TMP_DIR/project/EDIT_PLAN.md"
 test -f "$TMP_DIR/project/DESIGN.md"
+test -f "$TMP_DIR/project/CONTENT_LOGIC.json"
 test -f "$TMP_DIR/project/VIDEO_LESSONS.md"
 test -f "$TMP_DIR/project/VIDEO_RETRO.md"
+test -f "$TMP_DIR/project/qa/KEYFRAME_REVIEW.md"
+
+cat > "$TMP_DIR/valid-content-logic.json" <<'EOF'
+{
+  "schema_version": "1.0",
+  "status": "ready",
+  "timeline_duration": 15,
+  "timing_source": "edit/word-timeline.json",
+  "timing_precision": "word-level",
+  "groups": [
+    {
+      "group_id": "logic-001",
+      "start": 0.2,
+      "end": 3.2,
+      "viewer_question": "What changed?",
+      "takeaway": "The workflow is now faster.",
+      "evidence": [{"start": 0.2, "end": 3.1, "text": "The old workflow was slow, and the new one is faster."}],
+      "beats": [
+        {"beat_id": "logic-001-input", "role": "input", "start": 0.2, "end": 1.1, "text": "Old workflow", "keep_visible_until_group_end": true},
+        {"beat_id": "logic-001-relation", "role": "relation", "start": 1.1, "end": 2.1, "text": "Rebuilt", "keep_visible_until_group_end": true},
+        {"beat_id": "logic-001-result", "role": "result", "start": 2.1, "end": 3.1, "text": "Faster", "keep_visible_until_group_end": true}
+      ]
+    }
+  ]
+}
+EOF
+python3 "$ROOT_DIR/tools/content_logic_check.py" "$TMP_DIR/valid-content-logic.json"
+python3 - "$TMP_DIR/valid-content-logic.json" "$TMP_DIR/invalid-content-logic.json" <<'PY'
+import json
+import sys
+
+source, target = sys.argv[1:]
+payload = json.load(open(source, encoding="utf-8"))
+payload["status"] = "pending"
+payload["groups"][0]["beats"][1]["start"] = 4.0
+json.dump(payload, open(target, "w", encoding="utf-8"))
+PY
+if python3 "$ROOT_DIR/tools/content_logic_check.py" "$TMP_DIR/invalid-content-logic.json"; then
+  echo "Expected pending/out-of-range content logic failure" >&2
+  exit 1
+fi
 
 python3 "$ROOT_DIR/tools/design_check.py" "$TMP_DIR/project/DESIGN.md"
 cp "$TMP_DIR/project/DESIGN.md" "$TMP_DIR/invalid-design.md"
@@ -111,13 +153,14 @@ cat > "$TMP_DIR/valid-motion-plan.json" <<'EOF'
   "timeline_duration": 15,
   "motion_density": "energetic",
   "protected_regions": ["face", "captions", "screenshots", "product-ui"],
+  "content_logic_path": "CONTENT_LOGIC.json",
   "nodes": [
-    {"node_id":"m1","recipe_id":"focus-frame","start":0.2,"end":0.9,"semantic_tag":"question","semantic_evidence":{"start":0.0,"end":1.0,"text":"为什么会这样？","intent":"question"},"target":"question","region":"top-safe","visual_role":"focus-frame","covers_protected_regions":false,"plugin":null,"fallback":"core DOM corners"},
-    {"node_id":"m2","recipe_id":"counter-roll","start":2.0,"end":3.0,"semantic_tag":"number","semantic_evidence":{"start":1.9,"end":3.1,"text":"总共 12 个步骤","intent":"number"},"target":"12","region":"left-safe","visual_role":"metric-counter","covers_protected_regions":false,"plugin":null,"fallback":"numeric object tween"},
-    {"node_id":"m3","recipe_id":"split-reveal","start":4.0,"end":5.5,"semantic_tag":"list","semantic_evidence":{"start":3.9,"end":5.6,"text":"第一步检查，第二步确认","intent":"list"},"target":"steps","region":"right-safe","visual_role":"split-steps","covers_protected_regions":false,"plugin":"SplitText","fallback":"word spans with core stagger"},
-    {"node_id":"m4","recipe_id":"compare-split","start":6.5,"end":8.0,"semantic_tag":"compare","semantic_evidence":{"start":6.4,"end":8.1,"text":"之前很慢，之后更快","intent":"compare"},"target":"comparison","region":"center-safe","visual_role":"split-comparison","covers_protected_regions":false,"plugin":null,"fallback":"overflow wrappers"},
-    {"node_id":"m5","recipe_id":"glass-notification","start":9.5,"end":10.2,"semantic_tag":"warning","semantic_evidence":{"start":9.4,"end":10.3,"text":"注意这个风险","intent":"warning"},"target":"risk","region":"top-safe","visual_role":"glass-warning","covers_protected_regions":false,"plugin":null,"fallback":"translucent DOM surface"},
-    {"node_id":"m6","recipe_id":"approval-stamp","start":12.2,"end":13.2,"semantic_tag":"confirmation","semantic_evidence":{"start":12.1,"end":13.3,"text":"人工确认通过","intent":"confirmation"},"target":"approval","region":"right-safe","visual_role":"approval-mark","covers_protected_regions":false,"plugin":null,"fallback":"core scale and rotation"}
+    {"node_id":"m1","recipe_id":"focus-frame","start":0.2,"end":0.9,"semantic_tag":"question","logic_group_id":"logic-001","logic_beat_id":"logic-001-input","semantic_evidence":{"start":0.0,"end":1.0,"text":"为什么会这样？","intent":"question"},"target":"question","region":"top-safe","visual_role":"focus-frame","covers_protected_regions":false,"plugin":null,"fallback":"core DOM corners"},
+    {"node_id":"m2","recipe_id":"counter-roll","start":2.0,"end":3.0,"semantic_tag":"number","logic_group_id":"logic-002","logic_beat_id":"logic-002-result","semantic_evidence":{"start":1.9,"end":3.1,"text":"总共 12 个步骤","intent":"number"},"target":"12","region":"left-safe","visual_role":"metric-counter","covers_protected_regions":false,"plugin":null,"fallback":"numeric object tween"},
+    {"node_id":"m3","recipe_id":"split-reveal","start":4.0,"end":5.5,"semantic_tag":"list","logic_group_id":"logic-003","logic_beat_id":"logic-003-support","semantic_evidence":{"start":3.9,"end":5.6,"text":"第一步检查，第二步确认","intent":"list"},"target":"steps","region":"right-safe","visual_role":"split-steps","covers_protected_regions":false,"plugin":"SplitText","fallback":"word spans with core stagger"},
+    {"node_id":"m4","recipe_id":"compare-split","start":6.5,"end":8.0,"semantic_tag":"compare","logic_group_id":"logic-004","logic_beat_id":"logic-004-relation","semantic_evidence":{"start":6.4,"end":8.1,"text":"之前很慢，之后更快","intent":"compare"},"target":"comparison","region":"center-safe","visual_role":"split-comparison","covers_protected_regions":false,"plugin":null,"fallback":"overflow wrappers"},
+    {"node_id":"m5","recipe_id":"glass-notification","start":9.5,"end":10.2,"semantic_tag":"warning","logic_group_id":"logic-005","logic_beat_id":"logic-005-warning","semantic_evidence":{"start":9.4,"end":10.3,"text":"注意这个风险","intent":"warning"},"target":"risk","region":"top-safe","visual_role":"glass-warning","covers_protected_regions":false,"plugin":null,"fallback":"translucent DOM surface"},
+    {"node_id":"m6","recipe_id":"approval-stamp","start":12.2,"end":13.2,"semantic_tag":"confirmation","logic_group_id":"logic-006","logic_beat_id":"logic-006-result","semantic_evidence":{"start":12.1,"end":13.3,"text":"人工确认通过","intent":"confirmation"},"target":"approval","region":"right-safe","visual_role":"approval-mark","covers_protected_regions":false,"plugin":null,"fallback":"core scale and rotation"}
   ]
 }
 EOF

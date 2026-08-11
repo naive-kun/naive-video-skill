@@ -172,9 +172,11 @@ def main() -> int:
     template_map = {
         templates / "EDIT_PLAN.template.md": project / "EDIT_PLAN.md",
         templates / "DESIGN.template.md": project / "DESIGN.md",
+        templates / "CONTENT_LOGIC.template.json": project / "CONTENT_LOGIC.json",
         templates / "VIDEO_LESSONS.template.md": project / "VIDEO_LESSONS.md",
         templates / "VIDEO_RETRO.template.md": project / "VIDEO_RETRO.md",
         templates / "QA_REPORT.template.md": project / "qa" / "QA_REPORT.md",
+        templates / "KEYFRAME_REVIEW.template.md": project / "qa" / "KEYFRAME_REVIEW.md",
     }
     for source, destination in template_map.items():
         if write_template(source, destination, replacements):

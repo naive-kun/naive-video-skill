@@ -10,6 +10,14 @@ edit/caption-table.csv
 edit/transcripts/<video_name>.json
 ```
 
+When the adapter exposes trustworthy token timing, also normalize:
+
+```text
+edit/word-timeline.json
+```
+
+Each token entry must contain `text`, `startMs`, and `endMs`. Do not derive fake word timestamps by assigning every word the cue start.
+
 ## Caption Grouping Rules
 
 - Prefer semantic sentence groups over mechanical line breaks.
@@ -18,6 +26,8 @@ edit/transcripts/<video_name>.json
 - Avoid captions shorter than roughly 0.5s unless the speech is genuinely short.
 - Avoid zero-duration or near-zero-duration captions.
 - Keep timestamps on the output timeline when cutting is involved.
+- Record whether downstream timing precision is `word-level`, `cue-level`, or `manual`.
+- Use word timing for keyword triggers when available; use cue boundaries or exact user anchors otherwise.
 
 ## Text Correction Rules
 

@@ -14,18 +14,20 @@ Resolve `<skill_root>` by locating the installed `talking-head-video-pipeline/SK
 
 ## Workflow
 
-1. Read `references/style-onboarding.md`, `references/asset-onboarding.md`, `references/layout-safety.md`, `references/visual-quality-rules.md`, and `references/gsap-runtime.md`.
+1. Read `references/style-onboarding.md`, `references/asset-onboarding.md`, `references/content-logic-workflow.md`, `references/layout-safety.md`, `references/visual-quality-rules.md`, and `references/gsap-runtime.md`.
 2. Reuse active confirmed profile rules. Project-specific instructions override the profile for this video only.
 3. If style is still unknown, use quick defaults or ask one guided question at a time. Offer beginners an optional screenshot reference; do not require one.
 4. If visual assets exist and placement mode is not already known, ask whether the user wants semantic placement or exact seconds/spoken-sentence anchors. Recommend semantic placement for speed, but say exact anchors are more precise; accept a hybrid.
 5. Inspect image dimensions and video durations. Never guess how long a supplied demo runs.
 6. Fill `EDIT_PLAN.md` with the placement mode and every requested insert: original anchor, resolved start, end or duration, layout, source-audio behavior, entrance, exit, caption evidence, and protected regions.
-7. Read `references/motion-recipes.md`. Match caption intent to recipes and write `MOTION_PLAN.json` from `templates/MOTION_PLAN.template.json`. Every node needs caption evidence, start/end, region, visual role, and fallback behavior.
-8. Add semantic cards only in intervals without screenshot or demo conflicts. Evidence intervals reduce density and may suppress decorative nodes.
-9. Write `DESIGN.md` with CSS-friendly color variables, an explicit typography contract, caption maximum lines and wrap policy, component families, motion density, PiP/mask geometry, and safe zones. Keep creator-specific styling in the private profile rather than the public default.
-10. Check the intended font family and real weight, text baseline, longest-label fit, caption line policy, and glass-surface contrast.
-11. Run `python3 <skill_root>/tools/design_check.py <project_dir>/DESIGN.md` and `python3 <skill_root>/tools/motion_plan_check.py <project_dir>/MOTION_PLAN.json`, then G2 from `references/quality-gates.md`.
-12. Set stage to `design_ready` with `tools/state.py` only after G2 passes.
+7. Build `CONTENT_LOGIC.json` from complete viewer-facing reasoning units rather than punctuation. Use word timing when available; otherwise declare cue-level or manual precision. Let input/support/relation/result beats accumulate only while they help explain one group, then exit the group together.
+8. Run `python3 <skill_root>/tools/content_logic_check.py <project_dir>/CONTENT_LOGIC.json`. For a first project, new style, or reasoning-heavy video, show the group summaries before motion authoring.
+9. Read `references/motion-recipes.md`. Match logic beats and caption evidence to recipes and write `MOTION_PLAN.json` from `templates/MOTION_PLAN.template.json`. Every derived node needs `logic_group_id`, `logic_beat_id`, caption evidence, start/end, region, visual role, and fallback behavior.
+10. Add semantic cards only in intervals without screenshot or demo conflicts. Evidence intervals reduce density and may suppress decorative nodes.
+11. Write `DESIGN.md` with CSS-friendly color variables, an explicit typography contract, caption maximum lines and wrap policy, component families, motion density, PiP/mask geometry, and safe zones. Keep creator-specific styling in the private profile rather than the public default.
+12. Check the intended font family and real weight, text baseline, longest-label fit, caption line policy, and glass-surface contrast.
+13. Run `design_check.py`, `content_logic_check.py`, and `motion_plan_check.py`, then G2 from `references/quality-gates.md`.
+14. Set stage to `design_ready` with `tools/state.py` only after G2 passes.
 
 ## Screenshot Reference Branch
 
@@ -46,6 +48,7 @@ Never copy a logo, watermark, person, brand UI, original wording, or a complete 
 - Do not invent a personal brand when the user did not provide one.
 - Keep colors configurable; do not bake one creator's palette into the public skill.
 - Explain semantic cards with short readable text, not full transcript paragraphs.
+- Keep captions and cards separate: captions preserve speech; logic beats preserve the takeaway.
 - Keep readable text level and baseline-aligned. Animate a wrapper instead of skewing or rotating labels, captions, or button text.
 - Treat GSAP as the motion layer, not a substitute for typography, spacing, surface, or component geometry.
 - Use focus-frame, seekable-type, split-reveal, and glass-notification only for their declared semantic roles and record a deterministic fallback.

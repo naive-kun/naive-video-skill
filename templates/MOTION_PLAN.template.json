@@ -1,6 +1,7 @@
 {
   "schema_version": "1.0",
   "timeline_duration": 15.0,
+  "content_logic_path": "CONTENT_LOGIC.json",
   "motion_density": "balanced",
   "protected_regions": ["face", "captions", "screenshots", "product-ui"],
   "nodes": [
@@ -10,6 +11,8 @@
       "start": 0.5,
       "end": 1.4,
       "semantic_tag": "result",
+      "logic_group_id": "logic-001",
+      "logic_beat_id": "logic-001-result",
       "semantic_evidence": {
         "start": 0.4,
         "end": 1.5,
