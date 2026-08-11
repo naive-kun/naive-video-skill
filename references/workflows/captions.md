@@ -25,6 +25,8 @@ Resolve `<skill_root>` by locating the installed `talking-head-video-pipeline/SK
    edit/transcripts/<video_name>.json
    ```
 
+   When trustworthy word timing exists, also write `edit/word-timeline.json` using `text`, `startMs`, and `endMs`. Preserve cue-level timing honestly when it does not.
+
 6. For text-only corrections, update SRT and CSV together without changing timestamps.
 7. Run:
 
@@ -43,6 +45,7 @@ Resolve `<skill_root>` by locating the installed `talking-head-video-pipeline/SK
 - Keep proper nouns consistent.
 - Do not pretend transcription succeeded when no adapter or usable caption source exists.
 - Do not ask users with valid existing captions to choose a cloud or local provider.
+- Do not claim word-level keyword synchronization from SRT cue starts alone.
 
 ## Completion
 

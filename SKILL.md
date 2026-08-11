@@ -1,6 +1,6 @@
 ---
 name: talking-head-video-pipeline
-description: End-to-end, stateful talking-head video production for complete beginners and experienced editors. Use when a user wants optional rough-cut guidance, transcription or caption revision, screenshot and demo placement, visual design, a HyperFrames/GSAP preview, a synchronized final export, interrupted-work recovery, diagnosis, or reusable style learning from explicit feedback. Routes through internal workflow modules, optionally integrates video-use for raw footage, and preserves originals, evidence readability, privacy, and preview approval.
+description: End-to-end, stateful talking-head video production for complete beginners and experienced editors. Use when a user wants optional rough-cut guidance, transcription or caption revision, viewer-facing content logic groups, screenshot and demo placement, visual design, staged keyframe plus HyperFrames/GSAP preview, a synchronized final export, interrupted-work recovery, diagnosis, scoped revision, or reusable style learning from explicit feedback. Routes through internal workflow modules, optionally integrates video-use for raw footage, and preserves originals, evidence readability, privacy, and preview approval.
 ---
 
 # Talking Head Video Pipeline
@@ -83,15 +83,17 @@ When the user asks for the complete workflow:
 3. Ask whether the footage is already rough-cut only when that status is unclear. If it is raw, load the optional rough-cut workflow and require strategy approval.
 4. Produce or validate caption files from `working_video` when present, otherwise `main_video`.
 5. Ask whether screenshots, recordings, product images, charts, or demos must appear. Let the user choose semantic placement, exact seconds/spoken-sentence anchors, or a hybrid; explain that exact anchors are more precise.
-6. Collect or infer a style profile and safe zones. Offer optional screenshot-reference matching to beginners.
-7. Write an edit plan and semantic motion plan with every requested insert and time range.
-8. Build a HyperFrames + GSAP preview using a browser-friendly proxy if needed.
-9. Run preview quality gates and provide the official preview URL.
-10. Wait for approval unless explicitly told to skip.
-11. Render overlays or final composition using the approved working video and its audio clock.
-12. Verify file existence, duration, resolution, frame rate, and audio.
-13. Record only confirmed feedback as project-local lessons.
-14. After delivery, run a factual retrospective and promote only explicit, privacy-safe rules.
+6. Normalize word-level timing when available and split the speech into viewer-facing logic groups. Do not fake word precision from whole-caption starts.
+7. Collect or infer a style profile and safe zones. Offer optional screenshot-reference matching to beginners.
+8. Write an edit plan and semantic motion plan with every requested insert, logic-group link, and time range.
+9. For first-use, new-style, or reasoning-heavy work, render representative static keyframes and resolve composition problems before a full dynamic preview.
+10. Build a HyperFrames + GSAP preview using a browser-friendly proxy if needed.
+11. Run preview quality gates and provide the official preview URL.
+12. Wait for approval unless explicitly told to skip.
+13. Render overlays or final composition using the approved working video and its audio clock.
+14. Verify file existence, duration, resolution, frame rate, and audio.
+15. Record only confirmed feedback as project-local lessons.
+16. After delivery, run a factual retrospective and promote only explicit, privacy-safe rules.
 
 ## Project Files
 
@@ -102,6 +104,7 @@ The init workflow creates this minimal project memory without touching source me
 ├── .naive-video-state.json
 ├── EDIT_PLAN.md
 ├── DESIGN.md
+├── CONTENT_LOGIC.json       # viewer-facing reasoning groups and timed beats
 ├── STYLE_REFERENCE.md       # created only when a reference image is used
 ├── MOTION_PLAN.json         # created when semantic motion is planned
 ├── VIDEO_LESSONS.md
@@ -115,6 +118,7 @@ The init workflow creates this minimal project memory without touching source me
 ├── preview/
 ├── final/
 └── qa/
+    └── KEYFRAME_REVIEW.md   # static-composition review before dynamic preview
 ```
 
 State is operational metadata, not a media database. Keep it small and never store transcript bodies, private screenshots, or secrets in it. See [references/state-management.md](references/state-management.md).
@@ -135,6 +139,8 @@ If the user wants speed and gives no reference:
 Ask for an accent color only if brand consistency matters. Otherwise use the neutral preset and make it easy to change later. Beginners may optionally provide a screenshot and choose `low`, `medium`, or `high` reference strength; explain that the skill copies visual language, never the source brand or content. Motion density is `restrained`, `balanced`, or `energetic`. See [references/style-onboarding.md](references/style-onboarding.md).
 
 Detailed GSAP recipes and semantic mappings live in [references/motion-recipes.md](references/motion-recipes.md). Runtime and plugin selection live in [references/gsap-runtime.md](references/gsap-runtime.md). Screenshot extraction and anti-copy rules live in [references/style-reference-workflow.md](references/style-reference-workflow.md). Asset timing choices live in [references/asset-onboarding.md](references/asset-onboarding.md). Load them only for the matching design branch.
+
+Word-level timing, viewer-facing logic groups, and accumulation/exit behavior live in [references/content-logic-workflow.md](references/content-logic-workflow.md). Load it after captions and before semantic design.
 
 Typography, component geometry, glass notifications, and seek-safe focus/type/split adaptation live in [references/visual-quality-rules.md](references/visual-quality-rules.md). Load it for every design or preview task.
 

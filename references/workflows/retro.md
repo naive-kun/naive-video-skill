@@ -30,6 +30,7 @@ Resolve `<skill_root>` by locating the installed `talking-head-video-pipeline/SK
    python3 <skill_root>/tools/state.py \
      --project <project_dir> output retro <project_dir>/VIDEO_RETRO.md
    ```
+10. When the user asks for a reusable style handoff, generate project-local `STYLE_PROMPT.txt` from the final `DESIGN.md`, approved `STYLE_REFERENCE.md`, `VIDEO_LESSONS.md`, `VIDEO_RETRO.md`, and accepted keyframes. Remove episode-specific wording, timestamps, media paths, people, customer data, and brand assets. Keep this optional and private until the user chooses to share it.
 
 ## Promotion Gate
 
@@ -44,3 +45,4 @@ Return:
 - lessons promoted to project or profile
 - product candidates that still require maintainer review
 - the `VIDEO_RETRO.md` path
+- optional reusable `STYLE_PROMPT.txt` path when requested

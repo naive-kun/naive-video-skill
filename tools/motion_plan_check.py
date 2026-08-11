@@ -81,6 +81,7 @@ def validate(plan: dict[str, Any]) -> tuple[list[str], list[str]]:
     density = plan.get("motion_density")
     nodes = plan.get("nodes")
     protected = set(plan.get("protected_regions", []))
+    content_logic_path = plan.get("content_logic_path")
 
     if duration is None or duration <= 0:
         errors.append("timeline_duration must be a positive number")
@@ -163,6 +164,12 @@ def validate(plan: dict[str, Any]) -> tuple[list[str], list[str]]:
             errors.append(f"{prefix} is missing visual_role")
         else:
             visual_roles.add(visual_role.strip().lower())
+
+        if content_logic_path:
+            if not isinstance(node.get("logic_group_id"), str) or not node["logic_group_id"].strip():
+                errors.append(f"{prefix} must record logic_group_id when content_logic_path is set")
+            if not isinstance(node.get("logic_beat_id"), str) or not node["logic_beat_id"].strip():
+                errors.append(f"{prefix} must record logic_beat_id when content_logic_path is set")
 
         plugin = node.get("plugin")
         fallback = node.get("fallback")

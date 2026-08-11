@@ -74,12 +74,19 @@ When semantic motion is used, `MOTION_PLAN.json` must pass:
 python3 tools/motion_plan_check.py <project_dir>/MOTION_PLAN.json
 ```
 
+When captions drive explanatory motion, `CONTENT_LOGIC.json` must declare honest timing precision, complete viewer-facing groups, speech evidence, ordered beats, and group exit boundaries, then pass:
+
+```bash
+python3 tools/content_logic_check.py <project_dir>/CONTENT_LOGIC.json
+```
+
 When a screenshot reference is used, project-local `STYLE_REFERENCE.md` must record reference strength, extracted visual-language fields, prohibited copied elements, and any static-to-motion inference as `inferred`.
 
 ## G3 Preview Gate
 
 Pass when:
 
+- for first-use, new-style, reasoning-heavy, or user-requested staged review, `qa/KEYFRAME_REVIEW.md` covers the opening, major logic-group peaks, densest state, evidence/PiP layouts, transitions, and ending; requested static changes are resolved before full preview
 - the official preview service is reachable
 - main video and audio stay synchronized
 - GSAP is present and the timeline is seekable
@@ -94,6 +101,7 @@ Pass when:
 - readable text remains level and baseline-aligned
 - focus, typing, and split effects reproduce the same state after seeking
 - glass surfaces preserve contrast and do not weaken evidence readability
+- logic beats accumulate and exit according to `CONTENT_LOGIC.json`; motion does not clear every sentence or leak stale elements into unrelated groups
 
 When the renderer supports lint or inspect commands, run them at all insert boundaries and transitions.
 

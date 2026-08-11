@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.3.0
+
+- Added viewer-facing `CONTENT_LOGIC.json` planning between captions and motion so arguments are grouped by complete reasoning units rather than punctuation or isolated keywords.
+- Added honest word-timing handoff through optional `edit/word-timeline.json`; cue-level captions are no longer allowed to masquerade as word-level synchronization.
+- Added `tools/content_logic_check.py` and motion-plan links from every derived node to its logic group and beat.
+- Added input/support/relation/result accumulation and group-exit rules so explanatory motion builds a relationship instead of clearing after every sentence.
+- Added staged review through `qa/KEYFRAME_REVIEW.md`: representative static compositions are checked before a full dynamic preview for first-use, new-style, or reasoning-heavy projects.
+- Added structured revision requests using time range, object, current problem, and target state, followed by affected keyframes or short-fragment review before rebuilding the full preview.
+- Added optional privacy-safe `STYLE_PROMPT.txt` handoff generated from the accepted final design, explicit lessons, retrospective, and approved keyframes.
+- Kept HyperFrames + GSAP as the default renderer; the reusable planning and review improvements were adapted from a Remotion tutorial without adding or silently installing Remotion.
+
 ## 2.2.0
 
 - Changed the public package to expose exactly one root `SKILL.md`; twelve stage modules now live as internal workflow references so WorkBuddy-style recursive installers show one skill instead of many cards.
