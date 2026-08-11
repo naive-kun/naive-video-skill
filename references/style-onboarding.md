@@ -13,6 +13,7 @@ Ask one question at a time:
 5. What accent color? Accept a color name or hex. Offer to keep the preset default.
 6. What must never be covered?
 7. Motion density: restrained, balanced, or energetic?
+8. Cinematic shot references: use the recommended automatic pack, ShotCraft gallery selections, or skip? Explain that the recommended pack is implemented locally with HyperFrames + GSAP and does not install ShotCraft or Remotion.
 
 Skip questions whose answers can be inferred from a supplied reference.
 
@@ -25,8 +26,13 @@ When the user says to decide for them:
 - Use an accessible neutral-blue accent.
 - Use balanced motion.
 - Protect face, existing captions, screenshots, and product UI.
+- Use `automatic` ShotCraft-inspired references from the curated native pack. Select only semantics that exist in the transcript, cap them by motion density, and suppress them during screenshots, demos, captions, or face conflicts.
 
 Tell beginners they can start with no reference image and change the style after the first preview.
+
+Describe ShotCraft as optional shot inspiration, not a required renderer. Choosing `automatic` uses the bundled, independently authored HyperFrames + GSAP adaptations; `gallery` uses card names the user supplies; `skip` keeps only the base semantic recipes. Never install ShotCraft or Remotion during onboarding.
+
+The automatic default applies to newly initialized projects. Do not retroactively rewrite an existing project's approved `DESIGN.md` or `MOTION_PLAN.json`; preserve its current setting until the user asks to redesign it.
 
 ## Reference Strength
 
@@ -74,6 +80,7 @@ Write:
 - Motion density:
 - Reference image: none | project-local path
 - Reference strength: none | low | medium | high
+- Shot references: automatic | gallery-selected | skip
 
 ## Typography
 - Font family:

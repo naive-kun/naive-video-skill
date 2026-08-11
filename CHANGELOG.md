@@ -1,5 +1,17 @@
 # Changelog
 
+## 2.4.0
+
+- Added an optional ShotCraft shot-reference adapter without replacing the native state machine, semantic recipes, HyperFrames + GSAP preview, master-audio clock, or export path.
+- Made a curated six-card ShotCraft-inspired pack the safe default for new projects, implemented with native HyperFrames + GSAP and density-aware semantic selection; existing approved projects are not rewritten.
+- Added `tools/shotcraft_default_plan.py` to deterministically enrich compatible motion nodes while skipping evidence and protected regions.
+- Added `tools/remotion_runtime.py` for no-write planning, readiness checks, and explicitly approved project-local Remotion installation without global or bundled dependencies.
+- Added an independently authored offline mapping for six ShotCraft cards and deterministic semantic, density, native-recipe, implementation, and evidence-interval validation.
+- Added `tools/shotcraft_catalog.py` for explicit-path and conventional-path discovery. It never clones, installs, updates, or requires the external provider and returns `reference-only` suggestions when absent.
+- Added `gsap-adapted`, `hyperframes-custom`, and explicitly approved `remotion-subclip` implementation boundaries with a required native fallback and self-contained runtime.
+- Added beginner onboarding for automatic recommendation, gallery-selected cards, or skip; quick mode uses the native automatic pack without installing an external provider.
+- Added offline smoke coverage for provider absence, local discovery, a valid referenced motion node, unknown cards, and evidence overlap.
+
 ## 2.3.0
 
 - Added viewer-facing `CONTENT_LOGIC.json` planning between captions and motion so arguments are grouped by complete reasoning units rather than punctuation or isolated keywords.

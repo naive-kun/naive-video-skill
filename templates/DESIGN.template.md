@@ -8,6 +8,7 @@
 - Motion density: balanced
 - Reference image: none
 - Reference strength: none
+- Shot references: automatic (curated native GSAP pack; no provider required)
 
 ## Typography
 

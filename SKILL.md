@@ -33,6 +33,7 @@ Assume the user has never edited with Codex.
 10. **Public defaults stay brand-neutral.** Store creator palettes, recurring card systems, and private visual rules only in the local profile.
 11. **Public install exposes one Skill.** Keep stage modules under `references/workflows/`; do not add nested `SKILL.md` files that package managers may register separately.
 12. **Install operations are recoverable.** Back up an existing installation before replacement and archive uninstall targets instead of performing recursive force deletion.
+13. **Optional providers stay optional.** The curated default shot pack is native HyperFrames + GSAP. Never clone, install, update, or require ShotCraft, Remotion, or another provider without explicit user consent. Native recipes must remain a complete fallback.
 
 Read [references/quality-gates.md](references/quality-gates.md) before preview or export work.
 
@@ -46,6 +47,7 @@ Read [references/quality-gates.md](references/quality-gates.md) before preview o
 | `帮我设计`, `换颜色风格`, `规划弹窗`, `design` | `references/workflows/design.md` | DESIGN and complete edit plan |
 | `参考这张截图设计`, `按这张图的视觉语言`, `style reference` | `references/workflows/design.md` reference branch | Project-local STYLE_REFERENCE |
 | `按语义匹配动效`, `GSAP 动效丰富一点`, `semantic motion` | `references/workflows/design.md`, then preview | Validated MOTION_PLAN and preview |
+| `参考 ShotCraft`, `推荐电影感镜头`, `cinematic shot reference` | `references/workflows/design.md` ShotCraft branch | Optional mapped shot references in MOTION_PLAN |
 | `做预览`, `加动效`, `build preview` | `references/workflows/preview.md` | Official preview URL |
 | `出成片`, `导出 4K`, `export final` | `references/workflows/export.md` | Verified final video |
 | `改这个`, `恢复上一版`, `revise` | `references/workflows/revise.md` | Scoped revision and new preview/final |
@@ -86,14 +88,15 @@ When the user asks for the complete workflow:
 6. Normalize word-level timing when available and split the speech into viewer-facing logic groups. Do not fake word precision from whole-caption starts.
 7. Collect or infer a style profile and safe zones. Offer optional screenshot-reference matching to beginners.
 8. Write an edit plan and semantic motion plan with every requested insert, logic-group link, and time range.
-9. For first-use, new-style, or reasoning-heavy work, render representative static keyframes and resolve composition problems before a full dynamic preview.
-10. Build a HyperFrames + GSAP preview using a browser-friendly proxy if needed.
-11. Run preview quality gates and provide the official preview URL.
-12. Wait for approval unless explicitly told to skip.
-13. Render overlays or final composition using the approved working video and its audio clock.
-14. Verify file existence, duration, resolution, frame rate, and audio.
-15. Record only confirmed feedback as project-local lessons.
-16. After delivery, run a factual retrospective and promote only explicit, privacy-safe rules.
+9. For new projects, automatically map a few safe semantic nodes to the curated ShotCraft-inspired native pack unless the user chooses `skip`. Preserve existing approved projects, the native recipe, and offline fallback.
+10. For first-use, new-style, or reasoning-heavy work, render representative static keyframes and resolve composition problems before a full dynamic preview.
+11. Build a HyperFrames + GSAP preview using a browser-friendly proxy if needed.
+12. Run preview quality gates and provide the official preview URL.
+13. Wait for approval unless explicitly told to skip.
+14. Render overlays or final composition using the approved working video and its audio clock.
+15. Verify file existence, duration, resolution, frame rate, and audio.
+16. Record only confirmed feedback as project-local lessons.
+17. After delivery, run a factual retrospective and promote only explicit, privacy-safe rules.
 
 ## Project Files
 
@@ -139,6 +142,8 @@ If the user wants speed and gives no reference:
 Ask for an accent color only if brand consistency matters. Otherwise use the neutral preset and make it easy to change later. Beginners may optionally provide a screenshot and choose `low`, `medium`, or `high` reference strength; explain that the skill copies visual language, never the source brand or content. Motion density is `restrained`, `balanced`, or `energetic`. See [references/style-onboarding.md](references/style-onboarding.md).
 
 Detailed GSAP recipes and semantic mappings live in [references/motion-recipes.md](references/motion-recipes.md). Runtime and plugin selection live in [references/gsap-runtime.md](references/gsap-runtime.md). Screenshot extraction and anti-copy rules live in [references/style-reference-workflow.md](references/style-reference-workflow.md). Asset timing choices live in [references/asset-onboarding.md](references/asset-onboarding.md). Load them only for the matching design branch.
+
+ShotCraft discovery and adaptation rules live in [references/shotcraft-integration.md](references/shotcraft-integration.md); the native beginner pack lives in [references/shotcraft-default-pack.md](references/shotcraft-default-pack.md). Load them for new automatic projects, named cards, or cinematic shot requests. Never install a provider silently.
 
 Word-level timing, viewer-facing logic groups, and accumulation/exit behavior live in [references/content-logic-workflow.md](references/content-logic-workflow.md). Load it after captions and before semantic design.
 

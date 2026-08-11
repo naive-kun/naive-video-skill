@@ -4,6 +4,7 @@
   "content_logic_path": "CONTENT_LOGIC.json",
   "motion_density": "balanced",
   "protected_regions": ["face", "captions", "screenshots", "product-ui"],
+  "evidence_intervals": [],
   "nodes": [
     {
       "node_id": "motion-001",
@@ -24,7 +25,8 @@
       "visual_role": "keyword-emphasis",
       "covers_protected_regions": false,
       "plugin": null,
-      "fallback": "GSAP core scale, y, and autoAlpha"
+      "fallback": "GSAP core scale, y, and autoAlpha",
+      "reference": null
     }
   ]
 }

@@ -74,6 +74,8 @@ When semantic motion is used, `MOTION_PLAN.json` must pass:
 python3 tools/motion_plan_check.py <project_dir>/MOTION_PLAN.json
 ```
 
+When automatic ShotCraft-inspired references are used, run `shotcraft_default_plan.py` before the final motion check. Every referenced node must retain a compatible native `recipe_id`, use a known mapped card and implementation, set `provider_required_at_runtime=false`, and avoid declared screenshot/demo evidence intervals. The external provider and Remotion do not need to be installed for G2.
+
 When captions drive explanatory motion, `CONTENT_LOGIC.json` must declare honest timing precision, complete viewer-facing groups, speech evidence, ordered beats, and group exit boundaries, then pass:
 
 ```bash
@@ -102,6 +104,8 @@ Pass when:
 - focus, typing, and split effects reproduce the same state after seeking
 - glass surfaces preserve contrast and do not weaken evidence readability
 - logic beats accumulate and exit according to `CONTENT_LOGIC.json`; motion does not clear every sentence or leak stale elements into unrelated groups
+- ShotCraft-inspired nodes reproduce their declared native fallback when the external provider is absent and do not overlap readable evidence
+- any explicitly approved `remotion-subclip` has a ready project-local runtime, is pre-rendered muted, and cannot retime or replace master audio
 
 When the renderer supports lint or inspect commands, run them at all insert boundaries and transitions.
 

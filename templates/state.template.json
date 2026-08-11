@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "skill_version": "2.3.0",
+  "skill_version": "2.4.0",
   "project_name": "<project_name>",
   "stage": "initialized",
   "main_video": "<main_video>",
@@ -18,6 +18,7 @@
     "accent_color": "#2F7DF4",
     "aspect_ratio": "preserve-source",
     "motion_density": "balanced",
+    "shot_reference_mode": "automatic",
     "safe_zones": ["face", "existing-captions", "screenshots", "product-ui"]
   },
   "profile": {

@@ -34,6 +34,8 @@ MARKDOWN_LINK = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
 RECURSIVE_FORCE_DELETE = re.compile(
     r"\b" + "r" + "m" + r"\s+-(?:[^\s]*r[^\s]*f|[^\s]*f[^\s]*r)\b"
 )
+SHOTCRAFT_IMPLEMENTATIONS = {"gsap-adapted", "hyperframes-custom"}
+MOTION_DENSITIES = {"restrained", "balanced", "energetic"}
 
 
 def frontmatter(path: Path) -> tuple[dict[str, str], list[str]]:
@@ -98,6 +100,89 @@ def privacy_findings(root: Path) -> list[str]:
     return findings
 
 
+def validate_shotcraft_mapping(path: Path) -> list[str]:
+    errors: list[str] = []
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (FileNotFoundError, json.JSONDecodeError) as exc:
+        return [f"invalid ShotCraft mapping JSON: {exc}"]
+    if not isinstance(data, dict):
+        return ["ShotCraft mapping root must be an object"]
+    if data.get("provider") != "video-shotcraft":
+        errors.append("ShotCraft mapping provider must be video-shotcraft")
+    cards = data.get("cards")
+    if not isinstance(cards, list) or not cards:
+        return errors + ["ShotCraft mapping cards must be a non-empty array"]
+
+    default_pack = data.get("default_pack")
+    if not isinstance(default_pack, dict):
+        errors.append("ShotCraft mapping needs a default_pack object")
+
+    names: set[str] = set()
+    for index, card in enumerate(cards, start=1):
+        prefix = f"ShotCraft mapping card[{index}]"
+        if not isinstance(card, dict):
+            errors.append(f"{prefix} must be an object")
+            continue
+        name = card.get("card")
+        if not isinstance(name, str) or not name.strip():
+            errors.append(f"{prefix} needs a card name")
+        elif name in names:
+            errors.append(f"{prefix} duplicates card {name!r}")
+        else:
+            names.add(name)
+        if not isinstance(card.get("native_recipe_ids"), list) or not card["native_recipe_ids"]:
+            errors.append(f"{prefix} needs native_recipe_ids")
+        if not isinstance(card.get("semantic_tags"), list) or not card["semantic_tags"]:
+            errors.append(f"{prefix} needs semantic_tags")
+        if card.get("implementation") not in SHOTCRAFT_IMPLEMENTATIONS:
+            errors.append(f"{prefix} has unsupported default implementation")
+        densities = card.get("densities")
+        if not isinstance(densities, list) or not densities or not set(densities).issubset(MOTION_DENSITIES):
+            errors.append(f"{prefix} has invalid densities")
+        duration = card.get("recommended_duration")
+        if (
+            not isinstance(duration, list)
+            or len(duration) != 2
+            or not all(isinstance(value, (int, float)) and not isinstance(value, bool) for value in duration)
+            or duration[0] <= 0
+            or duration[1] <= duration[0]
+        ):
+            errors.append(f"{prefix} has invalid recommended_duration")
+        if not isinstance(card.get("allow_during_evidence"), bool):
+            errors.append(f"{prefix} needs boolean allow_during_evidence")
+
+    if isinstance(default_pack, dict):
+        if not isinstance(default_pack.get("pack_id"), str) or not default_pack["pack_id"].strip():
+            errors.append("ShotCraft default_pack needs pack_id")
+        if default_pack.get("enabled_for_new_projects") is not True:
+            errors.append("ShotCraft default_pack must be enabled for new projects")
+        if default_pack.get("provider_required_at_runtime") is not False:
+            errors.append("ShotCraft default_pack must not require the provider at runtime")
+        if default_pack.get("remotion_required") is not False:
+            errors.append("ShotCraft default_pack must not require Remotion")
+        limits = default_pack.get("max_references_by_density")
+        if not isinstance(limits, dict) or set(limits) != MOTION_DENSITIES:
+            errors.append("ShotCraft default_pack needs a cap for every motion density")
+        elif any(
+            not isinstance(value, int) or isinstance(value, bool) or value < 0
+            for value in limits.values()
+        ):
+            errors.append("ShotCraft default_pack density caps must be non-negative integers")
+        default_cards = default_pack.get("cards")
+        if not isinstance(default_cards, list) or not default_cards:
+            errors.append("ShotCraft default_pack cards must be a non-empty array")
+        elif len(default_cards) != len(set(default_cards)):
+            errors.append("ShotCraft default_pack cards must be unique")
+        else:
+            unknown = sorted(set(default_cards) - names)
+            if unknown:
+                errors.append(
+                    "ShotCraft default_pack references unknown cards: " + ", ".join(unknown)
+                )
+    return errors
+
+
 def validate(root: Path) -> list[str]:
     errors: list[str] = []
     root_skill = root / "SKILL.md"
@@ -131,10 +216,18 @@ def validate(root: Path) -> list[str]:
         root / "references" / "video-use-integration.md",
         root / "references" / "asset-onboarding.md",
         root / "references" / "gsap-runtime.md",
+        root / "references" / "shotcraft-integration.md",
+        root / "references" / "shotcraft-default-pack.md",
+        root / "references" / "shotcraft-mapping.json",
         root / "tools" / "design_check.py",
         root / "tools" / "content_logic_check.py",
         root / "tools" / "gsap_check.py",
+        root / "tools" / "shotcraft_catalog.py",
+        root / "tools" / "shotcraft_default_plan.py",
+        root / "tools" / "remotion_runtime.py",
         root / "tools" / "install_copy.py",
+        root / "templates" / "MOTION_PLAN.template.json",
+        root / "tests" / "fixtures" / "shotcraft-mini-library.json",
         root / "migrations" / "registry.md",
         root / "VERSION",
         root / "install.sh",
@@ -158,6 +251,10 @@ def validate(root: Path) -> list[str]:
                     errors.append(
                         f"state template skill_version {template_version!r} does not match VERSION {version!r}"
                     )
+
+    shotcraft_mapping = root / "references" / "shotcraft-mapping.json"
+    if shotcraft_mapping.exists():
+        errors.extend(validate_shotcraft_mapping(shotcraft_mapping))
 
     for markdown in root.rglob("*.md"):
         if ".git" in markdown.parts:
